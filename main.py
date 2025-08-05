@@ -87,7 +87,7 @@ def open_map(i = 0):
         state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w*scale_h), round(bmsize_h*scale_h))) # resizes to screen size
     else:
         state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w * scale_w), round(bmsize_h * scale_w)))  # resizes to screen size
-    return state.battle_map, state.aoe_position, state.scr_w, state.scr_h
+    return True
 
 def calibration(cap):
     """
@@ -122,7 +122,7 @@ def calibration(cap):
             pts = np.int32([points])[0][0]
             ratio = pythagorean_distance(pts[0][0], pts[0][1], pts[2][0], pts[2][1])/208
             break
-    return ratio
+    return True
 
 def keymanager():
     # keymapping:
@@ -189,7 +189,7 @@ def keymanager():
                 state.map_index = 0
             else:
                 state.map_index += 1
-            state.battle_map, state.aoe_position, state.scr_w, state.scr_h = open_map(state.map_index)
+            open_map(state.map_index)
 
 
 mp_hands = mp.solutions.hands
@@ -198,7 +198,7 @@ hands = mp_hands.Hands(min_detection_confidence=0.3, min_tracking_confidence=0.3
 mp_drawing = mp.solutions.drawing_utils
 
 aoe_size = 0
-state.battle_map, state.aoe_position, state.scr_w, state.scr_h = open_map(state.map_index)
+open_map(state.map_index)
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, state.scr_w)
@@ -252,77 +252,9 @@ while cap.isOpened():
             cv2.circle(state.overlay, [thumb_x, thumb_y], 10, (200, 0, 0), -1)
 
 
-        if grabbing(index_finger, index_joint, thumb_tip):
-            state.resizing = True
-            time_set2 = False
-            if not state.time_set:
-                st_time = time.time()
-                state.time_set = True
-            del_t = time.time() - st_time
-            if del_t > 1:
-                state.floating = False
-                state.time_set = False
-                state.aoe_start = state.aoe_position
-                if(state.type == "d"):
-                    aoe_man.delete_nearest(state.pointer)
-                    state.type = ""
-                    state.active = False
-
-            elif state.floating:
-                cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t * 360, state.Theme.pointer, -1)
-            aoe_size = int(round((10 + pythagorean_distance(int(state.pointer[0]), int(state.pointer[1]), state.aoe_position[0], state.aoe_position[1])/2)/5, -1)*5/state.fcal)
-
-        elif(state.floating):
-            state.aoe_position = state.pointer
-            state.time_set = False
-        elif state.active:
-            state.resizing = False
-            if not time_set2:
-                st_time = time.time()
-                time_set2 = True
-            del_t = time.time() - st_time
-            if del_t > 1:
-                state.floating = False
-                time_set2 = False
-                if state.type == "s":
-                    aoe_man.add_effect((state.type, state.aoe_position, aoe_size))
-                if state.type == "l":
-                    aoe_man.add_effect((state.type, state.aoe_start, end))
-                if state.type == "c":
-                    aoe_man.add_effect((state.type, state.aoe_start, end))
-                if state.type == "r":
-                    aoe_man.add_effect((state.type, state.aoe_start, end))
-                state.active = False
-            else:
-                cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t * 360, state.Theme.pointer, -1)
 
         if state.active:
-            if state.type == "s":
-                cv2.circle(state.overlay, state.aoe_position, aoe_size, state.Theme.active, 5)
-                cv2.putText(state.overlay, str(round(aoe_size / 50 * state.fcal, 1) * 5) + "ft", [state.aoe_position[0]+80,state.aoe_position[1]+80],
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-            if state.type == "c" and not state.floating:
-                if state.resizing:
-                    points = generate_cone(state.aoe_start, state.pointer)
-                    end = state.pointer
-                cv2.polylines(state.overlay, np.int32([points]), True, state.Theme.active, 5)
-                cv2.putText(state.overlay, str(round(pythagorean_distance(state.aoe_start[0], state.aoe_start[1], end[0], end[1])/9.87/5, -0)*5) + "ft", [state.aoe_position[0]+80,state.aoe_position[1]+80],
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-            if state.type == "r" and not state.floating:
-                if state.resizing:
-                    points = generate_square(state.aoe_start, state.pointer)
-                    end = state.pointer
-                cv2.polylines(state.overlay, np.int32([points]), True, state.Theme.active, 5)
-                cv2.putText(state.overlay, str(round((10 + pythagorean_distance(state.aoe_start[0], state.aoe_start[1], end[0], end[1]))/state.fcal / 11.4/5, -0)*5) + "ft",
-                            [state.aoe_position[0]+80,state.aoe_position[1]+80],
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-            if state.type == "l" and state.aoe_start != (0, 0):
-                if state.resizing:
-                    end = generate_line(state.aoe_start, state.pointer)
-                cv2.line(state.overlay, state.aoe_start, end, state.Theme.active, 10)
-                cv2.putText(state.overlay, str(round(pythagorean_distance(state.aoe_start[0], state.aoe_start[1], end[0], end[1])/state.fcal/13.4, -1)) + "ft", [state.aoe_position[0]+80,state.aoe_position[1]+80],
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-            cv2.circle(state.overlay, state.pointer, 10, state.Theme.pointer, -1)
+            end = shape_creator(aoe_size)
 
 
     aoe_man.draw()
