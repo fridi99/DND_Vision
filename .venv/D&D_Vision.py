@@ -71,6 +71,7 @@ class Theme():
     active = (60,60,60)
     pointer = (50, 150, 0)
     blowout = (0.15, 110)
+    text = (0,0,0)
 
 def pythagorean_distance(x1, y1, x2, y2):
     """
@@ -144,6 +145,11 @@ def generate_square(start, end):
     return (point1, point2, point3, point4)
 
 def ask_for_file():
+    """
+    WORK IN PROGRESS
+    This function asks the user to choose a map to use
+    :return: The filepath to chosen map
+    """
     root = tk.Tk()
     root.withdraw()  # Hide the main window
     file_path = filedialog.askopenfilename(
@@ -153,6 +159,11 @@ def ask_for_file():
     return file_path
 
 def open_map(i = 0):
+    """
+    This function opens the map in maps directory at given index
+    :param i: index of map to be opened, defaults to zero
+    :return: relevant data of the map opened,
+    """
     battle_map = cv2.imread("..\maps//" +os.listdir("..\maps")[i])
     if battle_map is None:
         path = ask_for_file()
@@ -175,6 +186,14 @@ def open_map(i = 0):
     return battle_map, aoe_position, scr_w, scr_h
 
 def calibration(cap):
+    """
+    This function will open and display the calibration code and uses it to
+    attempt to produce a scaling factor.
+    At the moment this function does not work reliably
+    :param cap: The capture instance that the main code uses (camera
+    :return: The calculated calibration ratio
+    :rtype: float
+    """
     calcode = cv2.imread("..\calibration_code.png")
     screen = screeninfo.get_monitors()[-1]  # fetches info of last monitor attached to device
     scr_h, scr_w = screen.height, screen.width
@@ -212,25 +231,24 @@ hands = mp_hands.Hands(min_detection_confidence=0.3, min_tracking_confidence=0.3
 mp_drawing = mp.solutions.drawing_utils
 
 # flags:
+dev_mode = False # shows additional information, like hand landmarks
+
+# boolean variable initialization
 active = False # flags if the programm is actually manipulating the image
 initiert = False # flags if there is anything to show on the map
 resizing = False # flags if the code is currently supposed to resize the effect
 time_set = False # flags if the start time of timer is set
 floating = True # flags if the effect is still being moved
 once = False # used to have the code only run once after going inactive
-dev_mode = False # shows additional information, like hand landmarks
 
-# variables
+
+# variable initialization
 fcal = 0.87 # factor to scale image to size of table top projection
-txt_col = (255,255,255) # color of text objects in image
 scalef = 2.2 # the amplification of the finger position when placing the point on the battle map
-offset = 70 # fix offset being subtracted from pointer
 pointer = (500, 500) # initial position of pointer
-map_index = 0
-cal_ratio = 1
-Theme = Theme()
-norm = [0,0]
-
+map_index = 0 # inital map index in file system
+cal_ratio = 1 # initial ratio for calibration. changed by using calibration function
+Theme = Theme() # The Theme object is needed as reference for colors
 
 
 aoe_size = 0
@@ -398,14 +416,14 @@ while cap.isOpened():
             if type == "s":
                 cv2.circle(overlay, aoe_position, aoe_size, Theme.active, 5)
                 cv2.putText(overlay, str(round(aoe_size / 50 * fcal, 1) * 5) + "ft", [aoe_position[0]+80,aoe_position[1]+80],
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, txt_col, 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, Theme.text, 2)
             if type == "c" and not floating:
                 if resizing:
                     points = generate_cone(aoe_start, pointer)
                     end = pointer
                 cv2.polylines(overlay, np.int32([points]), True, Theme.active, 5)
                 cv2.putText(overlay, str(round(pythagorean_distance(aoe_start[0], aoe_start[1], end[0], end[1])/9.87/5, -0)*5) + "ft", [aoe_position[0]+80,aoe_position[1]+80],
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, txt_col, 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, Theme.text, 2)
             if type == "r" and not floating:
                 if resizing:
                     points = generate_square(aoe_start, pointer)
@@ -413,13 +431,13 @@ while cap.isOpened():
                 cv2.polylines(overlay, np.int32([points]), True, Theme.active, 5)
                 cv2.putText(overlay, str(round((10 + pythagorean_distance(aoe_start[0], aoe_start[1], end[0], end[1]))/fcal / 11.4/5, -0)*5) + "ft",
                             [aoe_position[0]+80,aoe_position[1]+80],
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, txt_col, 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, Theme.text, 2)
             if type == "l" and aoe_start != (0, 0):
                 if resizing:
                     end = generate_line(aoe_start, pointer)
                 cv2.line(overlay, aoe_start, end, Theme.active, 10)
                 cv2.putText(overlay, str(round(pythagorean_distance(aoe_start[0], aoe_start[1], end[0], end[1])/fcal/13.4, -1)) + "ft", [aoe_position[0]+80,aoe_position[1]+80],
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, txt_col, 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, Theme.text, 2)
             cv2.circle(overlay, pointer, 10, Theme.pointer, -1)
 
 
