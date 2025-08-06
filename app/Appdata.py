@@ -7,7 +7,8 @@ class Theme():
     active = (60,60,60)
     pointer = (50, 150, 0)
     blowout = (0.15, 110)
-    text = (0,0,0)
+    pathing = (100, 0, 100)
+    text = (200,200,200)
 
 @dataclass
 class Appdata():
@@ -38,5 +39,5 @@ class Appdata():
     time_set2 = False
     aoe_size = 0
     st_time = 0
-
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
+    aoe_man = None

@@ -38,13 +38,17 @@ cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, state.scr_w)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, state.scr_h)
 
+state.aoe_man = aoe_manager()
+state.aoe_man.assign_cv2(cv2)
 
-### Manager initialization ###
-aoe_man = aoe_manager(cv2)
 while cap.isOpened():
-    
+    if not state.once:
+        path = pathing(cv2, (500, 500))
+        path.add_point((800, 500))
+        path.add_point((1200,700))
     ret, frame = cap.read()
-    frame = frame[int(state.scr_h*(1/2 - state.cal_ratio/4)):int(state.scr_h*(1/2 + state.cal_ratio/4)), int(state.scr_w*(1/2 - state.cal_ratio/4)):int(state.scr_w*(1/2 + state.cal_ratio/4))]
+    frame = frame[int(state.scr_h*(1/2 - state.cal_ratio/4)):int(state.scr_h*(1/2 + state.cal_ratio/4)),
+            int(state.scr_w*(1/2 - state.cal_ratio/4)):int(state.scr_w*(1/2 + state.cal_ratio/4))]
     # aritificially zooms into camera feed
     h, w, _ = frame.shape
 
@@ -87,10 +91,10 @@ while cap.isOpened():
 
         if state.active:
             grab = grabbing(index_finger, thumb_tip)
-            end = shape_creator(aoe_man, grab, end)
+            end = shape_creator(grab, end)
 
 
-    aoe_man.draw()
+    state.aoe_man.draw()
     cv2.imshow("Battlemap", state.overlay)
     cv2.imshow("Camera", frame)
     cv2.namedWindow("Battlemap", cv2.WINDOW_NORMAL)

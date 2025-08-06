@@ -12,9 +12,10 @@ import time
 class aoe_manager:
     """The aoe_manager class stores and creates all effects that should be saved
        to the battlemap"""
-    def __init__(self, cv2_obj):
-        self.cv2_obj = cv2_obj
+    def __init__(self):
         self.effects = []
+    def assign_cv2(self, cv2_obj):
+        self.cv2_obj = cv2_obj
     def add_effect(self, effect):
         # effect should be: (kind, position, size) or (kind, start, end)
         self.effects.append(effect)
@@ -50,6 +51,23 @@ class aoe_manager:
             return False
         self.effects.pop(-1)
         return True
+
+class pathing:
+
+    def __init__(self, cv2_obj, start):
+        self.cv2_obj = cv2_obj
+        self.path = [start]
+        self.dist = 0
+
+    def add_point(self, point):
+        self.path.append(point)
+        self.dist += pythagorean_distance(self.path[0][0], self.path[0][1],
+                                          self.path[1][0], self.path[1][1])
+
+    def draw(self):
+        self.cv2_obj.polylines(state.overlay, np.int32([self.path]), False, state.Theme.active, 5)
+        self.cv2_obj.putText(state.overlay, str(self.dist), self.path[-1], cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
+
 
 def generate_line(start, end):
     """
@@ -92,7 +110,7 @@ def generate_square(start, end):
     point4 = (int(start[0] + math.sin(ang + 0.46) * dist / cos(0.46)), int(start[1] + math.cos(ang + 0.46) * dist / cos(0.46)))
     return (point1, point2, point3, point4)
 
-def shape_creator(aoe_man, grab, end):
+def shape_creator(grab, end):
     if grab:
         state.resizing = True
         state.time_set2 = False
@@ -105,7 +123,7 @@ def shape_creator(aoe_man, grab, end):
             state.time_set = False
             state.aoe_start = state.aoe_position
             if (state.type == "d"):
-                aoe_man.delete_nearest(state.pointer)
+                state.aoe_man.delete_nearest(state.pointer)
                 state.type = ""
                 state.active = False
 
@@ -128,13 +146,13 @@ def shape_creator(aoe_man, grab, end):
             state.floating = False
             state.time_set2 = False
             if state.type == "s":
-                aoe_man.add_effect((state.type, state.aoe_position, state.aoe_size))
+                state.aoe_man.add_effect((state.type, state.aoe_position, state.aoe_size))
             if state.type == "l":
-                aoe_man.add_effect((state.type, state.aoe_start, end))
+                state.aoe_man.add_effect((state.type, state.aoe_start, end))
             if state.type == "c":
-                aoe_man.add_effect((state.type, state.aoe_start, end))
+                state.aoe_man.add_effect((state.type, state.aoe_start, end))
             if state.type == "r":
-                aoe_man.add_effect((state.type, state.aoe_start, end))
+                state.aoe_man.add_effect((state.type, state.aoe_start, end))
             state.active = False
         else:
             cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t * 360, state.Theme.pointer, -1)

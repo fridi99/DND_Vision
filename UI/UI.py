@@ -21,7 +21,7 @@ def keymanager(cap):
         key = cv2.waitKey(5) & 0xFF  # runs once after being inactivated, to remove whiteout
         state.once = True
     else:
-        key = cv2.waitKey(1000) & 0xFF  # stops image from refreshing until a button is pressed to save computing resources
+        key = cv2.waitKey(5) & 0xFF  # stops image from refreshing until a button is pressed to save computing resources
     if key == ord("q"):
         # quits program
         exit()
