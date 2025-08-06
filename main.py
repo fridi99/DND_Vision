@@ -6,7 +6,7 @@
 # TODO 8: moving
 # DONE 9: deleting
 # DONE 10: hand orientation consideration, keep effects of hand
-# BUGFIX 1: hand disapearance makes circle stay improved, testing in progress
+# BUGFIX 1: hand disapearance makes circle stay; improved, testing in progress
 
 from operator import truediv
 
