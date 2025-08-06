@@ -26,24 +26,7 @@ from app.Appdata import Appdata as state
 from Logic.Logic import *
 
 
-def grabbing(ind_tip, ind_joint, thum_tip):
-    """
-    evaluates if the targeted hand is currently pinching. uses distance between
-    index tip and upper joint as reference
-    :param ind_tip: landmark of tip of index finger
-    :param ind_joint: landmark of upper joint of index finger
-    :param thum_tip: landmark of tip of thumb
-    :return: Boolean
-    """
-    it_x, it_y = ind_tip.x, ind_tip.y
-    ij_x, ij_y = ind_joint.x, ind_joint.y
-    tt_x, tt_y = thum_tip.x, thum_tip.y
-    # ref = pythagorean_distance(it_x, it_y, ij_x, ij_y)
-    ref = 0.03
-    if pythagorean_distance(it_x, it_y, tt_x, tt_y)/1.5 < ref:
-        return True
-    else:
-        return False
+
 
 
 def ask_for_file():
@@ -192,12 +175,12 @@ def keymanager():
             open_map(state.map_index)
 
 
+end = (0,0)
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(min_detection_confidence=0.3, min_tracking_confidence=0.3, max_num_hands=1)
 
 mp_drawing = mp.solutions.drawing_utils
 
-aoe_size = 0
 open_map(state.map_index)
 
 cap = cv2.VideoCapture(0)
@@ -232,7 +215,6 @@ while cap.isOpened():
                 state.initiert = True;
                 # Get index finger tip (landmark 8) position
                 index_finger = hand_landmarks.landmark[8] # index finger tip
-                index_joint = hand_landmarks.landmark[7] # upper joint of index finger
                 thumb_tip = hand_landmarks.landmark[4] # thumb tip
                 ref_point_lm = [hand_landmarks.landmark[i] for i in [2,5]]
                 mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
@@ -242,7 +224,6 @@ while cap.isOpened():
         index_x, index_y = int(index_finger.x * w * 2.5 - 120), int(index_finger.y * h * 2.5 - 150)
         thumb_x, thumb_y = int(thumb_tip.x * w * 2.5 - 120), int(thumb_tip.y * h * 2.5 - 150)
         ref_point = [int((ref_point_lm[0].x + ref_point_lm[1].x)*w*1.25 -120), int((ref_point_lm[0].y + ref_point_lm[1].y)*h*1.25 - 150)]
-        print(ref_point)
         state.pointer = [int(((index_x+thumb_x*2)/3+((index_x+thumb_x*2)/3 - ref_point[0]) + state.pointer[0]*3)/4),
                    int(((index_y+thumb_y*2)/3+((index_y+thumb_y*2)/3 - ref_point[1]) + state.pointer[1]*3)/4)]
         if state.dev_mode:
@@ -254,7 +235,8 @@ while cap.isOpened():
 
 
         if state.active:
-            end = shape_creator(aoe_size)
+            grab = grabbing(index_finger, thumb_tip)
+            end = shape_creator(aoe_man, grab, end)
 
 
     aoe_man.draw()

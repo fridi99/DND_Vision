@@ -35,5 +35,8 @@ class Appdata():
     aoe_position = (0,0)
     overlay = None
     points = None
+    time_set2 = False
+    aoe_size = 0
+    st_time = 0
 
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors

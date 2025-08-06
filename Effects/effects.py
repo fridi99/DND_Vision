@@ -92,15 +92,14 @@ def generate_square(start, end):
     point4 = (int(start[0] + math.sin(ang + 0.46) * dist / cos(0.46)), int(start[1] + math.cos(ang + 0.46) * dist / cos(0.46)))
     return (point1, point2, point3, point4)
 
-def shape_creator(aoe_man):
-    end = state.pointer
-    if grabbing(index_finger, index_joint, thumb_tip):
+def shape_creator(aoe_man, grab, end):
+    if grab:
         state.resizing = True
-        time_set2 = False
+        state.time_set2 = False
         if not state.time_set:
-            st_time = time.time()
+            state.st_time = time.time()
             state.time_set = True
-        del_t = time.time() - st_time
+        del_t = time.time() - state.st_time
         if del_t > 1:
             state.floating = False
             state.time_set = False
@@ -112,7 +111,7 @@ def shape_creator(aoe_man):
 
         elif state.floating:
             cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t * 360, state.Theme.pointer, -1)
-        aoe_size = int(round((10 + pythagorean_distance(int(state.pointer[0]), int(state.pointer[1]),
+        state.aoe_size = int(round((10 + pythagorean_distance(int(state.pointer[0]), int(state.pointer[1]),
                                                         state.aoe_position[0], state.aoe_position[1]) / 2) / 5,
                              -1) * 5 / state.fcal)
 
@@ -121,15 +120,15 @@ def shape_creator(aoe_man):
         state.time_set = False
     elif state.active:
         state.resizing = False
-        if not time_set2:
-            st_time = time.time()
-            time_set2 = True
-        del_t = time.time() - st_time
+        if not state.time_set2:
+            state.st_time = time.time()
+            state.time_set2 = True
+        del_t = time.time() - state.st_time
         if del_t > 1:
             state.floating = False
-            time_set2 = False
+            state.time_set2 = False
             if state.type == "s":
-                aoe_man.add_effect((state.type, state.aoe_position, aoe_size))
+                aoe_man.add_effect((state.type, state.aoe_position, state.aoe_size))
             if state.type == "l":
                 aoe_man.add_effect((state.type, state.aoe_start, end))
             if state.type == "c":
@@ -141,8 +140,8 @@ def shape_creator(aoe_man):
             cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t * 360, state.Theme.pointer, -1)
 
     if state.type == "s":
-        cv2.circle(state.overlay, state.aoe_position, aoe_size, state.Theme.active, 5)
-        cv2.putText(state.overlay, str(round(aoe_size / 50 * state.fcal, 1) * 5) + "ft", [state.aoe_position[0]+80,state.aoe_position[1]+80],
+        cv2.circle(state.overlay, state.aoe_position, state.aoe_size, state.Theme.active, 5)
+        cv2.putText(state.overlay, str(round(state.aoe_size / 50 * state.fcal, 1) * 5) + "ft", [state.aoe_position[0]+80,state.aoe_position[1]+80],
                     cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
     if state.type == "c" and not state.floating:
         if state.resizing:
