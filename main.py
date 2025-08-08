@@ -24,9 +24,9 @@ state.aoe_man = aoe_manager()
 state.aoe_man.assign_cv2(cv2)
 
 while cap.isOpened():
-    keymanager(cap)
+    keymanager(cap, state.aoe_man)
     state.overlay = state.battle_map.copy()
-    tracker.track()
+    tracker.track(state.aoe_man)
 
 cap.release()
 cv2.destroyAllWindows()

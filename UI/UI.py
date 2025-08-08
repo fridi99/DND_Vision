@@ -4,7 +4,7 @@ from Effects.effects import *
 from Logic.Logic import *
 
 
-def keymanager(cap):
+def keymanager(cap, aoe_man):
     # keymapping:
     # q: quits
     # s: sphere
@@ -14,9 +14,9 @@ def keymanager(cap):
     # d: delete closest
     # z: delete latest
     # n: move to next map
-    if state.active:
+    if aoe_man.active:
         key = cv2.waitKey(5) & 0xFF
-        state.once = False
+        aoe_man.once = False
     elif not state.once:
         key = cv2.waitKey(5) & 0xFF  # runs once after being inactivated, to remove whiteout
         state.once = True
@@ -27,33 +27,33 @@ def keymanager(cap):
         exit()
     if key == ord("s"):
         # creates a sphere
-        state.type = "s"
+        aoe_man.type = "s"
         state.floating = True
-        state.active = True
+        aoe_man.active = True
         state.aoe_start = (0, 0)
     if key == ord("r"):
         # create a square
-        state.type = "r"
+        aoe_man.type = "r"
         state.floating = True
-        state.active = True
+        aoe_man.active = True
         state.aoe_start = (0, 0)
     if key == ord("l"):
         # creates a line
-        state.type = "l"
+        aoe_man.type = "l"
         state.floating = True
-        state.active = True
+        aoe_man.active = True
         state.aoe_start = (0, 0)
     if key == ord("c"):
         # creates a cone
-        state.type = "c"
+        aoe_man.type = "c"
         state.floating = True
-        state.active = True
+        aoe_man.active = True
         state.aoe_start = (0, 0)
     if key == ord("d"):
         # deletes effect closest to pinch
-        state.type = "d"
+        aoe_man.type = "d"
         state.floating = True
-        state.active = True
+        aoe_man.active = True
     if key == ord("z"):
         # deletes last effect in manager
         state.aoe_man.delete_last()
@@ -69,3 +69,8 @@ def keymanager(cap):
             else:
                 state.map_index += 1
             open_map(state.map_index)
+    if key == ord("p"):
+        # start a pathing operation
+        aoe_man.type = "p"
+        state.floating = True
+        aoe_man.active = True

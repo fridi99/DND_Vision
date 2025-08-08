@@ -16,7 +16,6 @@ class Appdata():
     dev_mode: bool = False # shows additional information, like hand landmarks
 
     # boolean variable initialization
-    active: bool = False # flags if the programm is actually manipulating the image
     initiert: bool = False # flags if there is anything to show on the map
     resizing: bool = False # flags if the code is currently supposed to resize the effect
     time_set: bool = False # flags if the start time of timer is set
@@ -25,8 +24,7 @@ class Appdata():
 
 
     # variable initialization
-    fcal: float = 0.87 # factor to scale image to size of table top projection
-    type: ord = ""
+    fcal: float = 0.0795 # factor to scale image to size of table top projection
     pointer: tuple = (500, 500) # initial position of pointer
     map_index: int = 0 # inital map index in file system
     cal_ratio: float = 1 # initial ratio for calibration. changed by using calibration function

@@ -36,14 +36,14 @@ class tracker:
         else:
             return False
 
-    def track(self):
+    def track(self, aoe_man):
         ret, self.frame = self.cap.read()
         self.frame = frame = self.frame[int(state.scr_h*(1/2 - state.cal_ratio/4)):int(state.scr_h*(1/2 + state.cal_ratio/4)),
             int(state.scr_w*(1/2 - state.cal_ratio/4)):int(state.scr_w*(1/2 + state.cal_ratio/4))]
         h, w, _ = frame.shape
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = self.hands.process(rgb_frame)
-        if state.active:
+        if aoe_man.active:
             state.overlay = cv2.convertScaleAbs(state.overlay, alpha=state.Theme.blowout[0],
                                                 beta=state.Theme.blowout[1])
             if results.multi_hand_landmarks:
@@ -70,9 +70,9 @@ class tracker:
                     cv2.circle(state.overlay, ref_point, 10, (50, 255, 0), -1)
                     cv2.circle(state.overlay, [thumb_x, thumb_y], 10, (200, 0, 0), -1)
 
-                if state.active:
+                if aoe_man.active:
                     grab = self.grabbing(index_finger, thumb_tip)
-                    self.end = shape_creator(grab, self.end)
+                    self.end = state.aoe_man.shape_creator(grab, self.end)
         self.draw(frame)
     def draw(self, frame):
         state.aoe_man.draw()
