@@ -8,7 +8,10 @@ from Effects.effects import *
 
 
 class tracker:
+    """
+    This class handles hand tracking and also draws the battlemap, because that is such simple code.
 
+    """
     def __init__(self, cap):
         self.cap = cap
         self.mp_hands = mp.solutions.hands
@@ -70,7 +73,8 @@ class tracker:
                 if state.active:
                     grab = self.grabbing(index_finger, thumb_tip)
                     self.end = shape_creator(grab, self.end)
-    def draw(self, frame)
+        self.draw(frame)
+    def draw(self, frame):
         state.aoe_man.draw()
         cv2.imshow("Battlemap", state.overlay)
         cv2.imshow("Camera", frame)
