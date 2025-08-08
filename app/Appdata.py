@@ -17,8 +17,6 @@ class Appdata():
 
     # boolean variable initialization
     initiert: bool = False # flags if there is anything to show on the map
-    resizing: bool = False # flags if the code is currently supposed to resize the effect
-    time_set: bool = False # flags if the start time of timer is set
     floating: bool = True # flags if the effect is still being moved
     once: bool = False # used to have the code only run once after going inactive
 
@@ -34,8 +32,6 @@ class Appdata():
     aoe_position = (0,0)
     overlay = None
     points = None
-    time_set2 = False
-    aoe_size = 0
     st_time = 0
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
     aoe_man = None

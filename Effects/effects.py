@@ -14,6 +14,10 @@ class aoe_manager:
        to the battlemap"""
     active = False
     path = None
+    time_set = False
+    time_set2 = False
+    resizing = False
+    size = 0
     def __init__(self):
         self.effects = []
         self.type = ""
@@ -79,7 +83,7 @@ class aoe_manager:
         :return: three point list
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
-        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) / 5, -1) / state.fcal) * 5
+        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) / 5, -1)) * 5
         point1 = (int(start[0] + math.sin(ang + rad(30)) * dist), int(start[1] + math.cos(ang + rad(30)) * dist))
         point2 = (int(start[0] + math.sin(ang - rad(30)) * dist), int(start[1] + math.cos(ang - rad(30)) * dist))
         return (start, point1, point2)
@@ -92,7 +96,7 @@ class aoe_manager:
         :return: four point list
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
-        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) / 5, -1) / state.fcal) * 5
+        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) / 5, -1)) * 5
         point1 = (
         int(start[0] + math.sin(ang + rad(90)) * dist / 2), int(start[1] + math.cos(ang + rad(90)) * dist / 2))
         point2 = (
@@ -106,15 +110,15 @@ class aoe_manager:
     def shape_creator(self, grab, end):
         """This function handles the creation of effects on the battlemap"""
         if grab:
-            state.resizing = True
-            state.time_set2 = False
-            if not state.time_set:
+            self.resizing = True
+            self.time_set2 = False
+            if not self.time_set:
                 state.st_time = time.time()
-                state.time_set = True
+                self.time_set = True
             del_t = time.time() - state.st_time
             if del_t > 0.4:
                 state.floating = False
-                state.time_set = False
+                self.time_set = False
                 state.aoe_start = state.aoe_position
                 if (self.type == "d"):
                     state.aoe_man.delete_nearest(state.pointer)
@@ -126,22 +130,22 @@ class aoe_manager:
             state.aoe_size = int(round((10 + pythagorean_distance(int(state.pointer[0]), int(state.pointer[1]),
                                                                   state.aoe_position[0],
                                                                   state.aoe_position[1]) / 2) / 5,
-                                       -1) * 5 / state.fcal)
+                                       -1) * 5 * state.fcal)
 
         elif (state.floating):
             state.aoe_position = state.pointer
-            state.time_set = False
+            self.time_set = False
         elif self.active:
-            state.resizing = False
-            if not state.time_set2:
+            self.resizing = False
+            if not self.time_set2:
                 state.st_time = time.time()
-                state.time_set2 = True
+                self.time_set2 = True
             del_t = time.time() - state.st_time
             if del_t > 0.4:
                 state.floating = False
-                state.time_set2 = False
+                self.time_set2 = False
                 if self.type == "s":
-                    state.aoe_man.add_effect((self.type, state.aoe_position, state.aoe_size))
+                    state.aoe_man.add_effect((self.type, state.aoe_position, int(self.size/state.fcal)))
                 if self.type == "l":
                     state.aoe_man.add_effect((self.type, state.aoe_start, end))
                 if self.type == "c":
@@ -151,16 +155,19 @@ class aoe_manager:
                 if self.type == "p":
                     state.aoe_man.add_effect((self.type, self.path))
                 self.active = False
+                self.once = False
             else:
                 cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t / 0.4 * 360, state.Theme.pointer, -1)
 
         if self.type == "s":
-            cv2.circle(state.overlay, state.aoe_position, state.aoe_size, state.Theme.active, 5)
-            cv2.putText(state.overlay, str(round(state.aoe_size / 50 * state.fcal, 1) * 5) + "ft",
+            self.size = int(round(pythagorean_distance(state.aoe_position[0], state.aoe_position[1],
+                                           state.pointer[0], state.pointer[1]) * state.fcal / 5, -0) * 5)
+            cv2.circle(state.overlay, state.aoe_position, int(self.size/state.fcal), state.Theme.active, 5)
+            cv2.putText(state.overlay, str(self.size) + "ft",
                         [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "c" and not state.floating:
-            if state.resizing:
+            if self.resizing:
                 state.points = self.generate_cone(state.aoe_start, state.pointer)
                 end = state.pointer
             cv2.polylines(state.overlay, np.int32([state.points]), True, state.Theme.active, 5)
@@ -169,17 +176,17 @@ class aoe_manager:
                 -0) * 5) + "ft", [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "r" and not state.floating:
-            if state.resizing:
+            if self.resizing:
                 state.points = self.generate_square(state.aoe_start, state.pointer)
                 end = state.pointer
             cv2.polylines(state.overlay, np.int32([state.points]), True, state.Theme.active, 5)
             cv2.putText(state.overlay, str(round((10 + pythagorean_distance(state.aoe_start[0], state.aoe_start[1],
-                                                                            end[0], end[1])) / state.fcal / 11.4 / 5,
+                                                                            end[0], end[1])) * state.fcal,
                                                  -0) * 5) + "ft",
                         [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "l" and state.aoe_start != (0, 0):
-            if state.resizing:
+            if self.resizing:
                 end = self.generate_line(state.aoe_start, state.pointer)
             cv2.line(state.overlay, state.aoe_start, end, state.Theme.active, 10)
             cv2.putText(state.overlay, str(round(
@@ -188,7 +195,7 @@ class aoe_manager:
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         cv2.circle(state.overlay, state.pointer, 10, state.Theme.pointer, -1)
         if self.type == "p":
-            if state.resizing:
+            if self.resizing:
                 if self.path == None:
                     self.path = pathing(cv2, state.pointer)
                 else:
