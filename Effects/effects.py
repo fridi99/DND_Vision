@@ -18,14 +18,20 @@ class aoe_manager:
     time_set2 = False
     resizing = False
     size = 0
+
     def __init__(self):
         self.effects = []
         self.type = ""
+
     def assign_cv2(self, cv2_obj):
+        """to prevent circular import the cv2 object is set using this function"""
         self.cv2_obj = cv2_obj
+
     def add_effect(self, effect):
         # effect should be: (kind, position, size) or (kind, start, end)
+        # The effect may also be the type and a class object, like the pathing object
         self.effects.append(effect)
+
     def draw(self):
         if self.active:
             col = state.Theme.active
@@ -44,9 +50,10 @@ class aoe_manager:
                 self.cv2_obj.polylines(state.overlay, np.int32([points]), True, col, 5)
             if eff[0] == "p":
                 eff[1].draw()
+
     def delete_nearest(self, pos):
         least = 9999
-        if(len(self.effects) == 0):
+        if len(self.effects) == 0:
             return False
         for eff in self.effects:
             dist = pythagorean_distance(pos[0], pos[1], eff[1][0], eff[1][1])
@@ -56,7 +63,7 @@ class aoe_manager:
         self.effects.remove(to_del)
         return True
     def delete_last(self):
-        if (len(self.effects) == 0):
+        if len(self.effects) == 0:
             return False
         self.effects.pop(-1)
         return True
@@ -76,17 +83,17 @@ class aoe_manager:
 
     def generate_cone(self, start, end):
         """
-        Generates a Cone of fixed size in 10 ft steps. With all edges being of
+        Generates a Cone of fixed size in 5 ft steps. With all edges being of
         equal length the inner angles are 60°
-        :param start: two number tupel start
-        :param end: two number tupel end
+        :param start: two number tuple start
+        :param end: two number tuple end
         :return: three point list
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
         dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) / 5, -1)) * 5
         point1 = (int(start[0] + math.sin(ang + rad(30)) * dist), int(start[1] + math.cos(ang + rad(30)) * dist))
         point2 = (int(start[0] + math.sin(ang - rad(30)) * dist), int(start[1] + math.cos(ang - rad(30)) * dist))
-        return (start, point1, point2)
+        return start, point1, point2
 
     def generate_square(self, start, end):
         """
@@ -97,18 +104,19 @@ class aoe_manager:
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
         dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) / 5, -1)) * 5
-        point1 = (
-        int(start[0] + math.sin(ang + rad(90)) * dist / 2), int(start[1] + math.cos(ang + rad(90)) * dist / 2))
-        point2 = (
-        int(start[0] + math.sin(ang - rad(90)) * dist / 2), int(start[1] + math.cos(ang - rad(90)) * dist / 2))
+        point1 = (int(start[0] + math.sin(ang + rad(90)) * dist / 2),
+                  int(start[1] + math.cos(ang + rad(90)) * dist / 2))
+        point2 = (int(start[0] + math.sin(ang - rad(90)) * dist / 2),
+                  int(start[1] + math.cos(ang - rad(90)) * dist / 2))
         point3 = (int(start[0] + math.sin(ang - 0.46) * dist / cos(0.46)),
                   int(start[1] + math.cos(ang - 0.46) * dist / cos(0.46)))
         point4 = (int(start[0] + math.sin(ang + 0.46) * dist / cos(0.46)),
                   int(start[1] + math.cos(ang + 0.46) * dist / cos(0.46)))
-        return (point1, point2, point3, point4)
+        return point1, point2, point3, point4
 
     def shape_creator(self, grab, end):
-        """This function handles the creation of effects on the battlemap"""
+        """This function handles the creation of effects on the battlemap
+        """
         if grab:
             self.resizing = True
             self.time_set2 = False
@@ -120,7 +128,7 @@ class aoe_manager:
                 state.floating = False
                 self.time_set = False
                 state.aoe_start = state.aoe_position
-                if (self.type == "d"):
+                if self.type == "d":
                     state.aoe_man.delete_nearest(state.pointer)
                     self.type = ""
                     self.active = False
@@ -132,7 +140,7 @@ class aoe_manager:
                                                                   state.aoe_position[1]) / 2) / 5,
                                        -1) * 5 * state.fcal)
 
-        elif (state.floating):
+        elif state.floating:
             state.aoe_position = state.pointer
             self.time_set = False
         elif self.active:
@@ -196,7 +204,7 @@ class aoe_manager:
         cv2.circle(state.overlay, state.pointer, 10, state.Theme.pointer, -1)
         if self.type == "p":
             if self.resizing:
-                if self.path == None:
+                if self.path is None:
                     self.path = pathing(cv2, state.pointer)
                 else:
                     self.path.add_point(state.pointer)
@@ -204,9 +212,9 @@ class aoe_manager:
         return end
 
 
-
 class pathing:
-
+    """This class is used to define a pathing object, that allows the user to
+    measure the distance of an arbitrary path"""
     def __init__(self, cv2_obj, start):
         self.cv2_obj = cv2_obj
         self.path = [start]
@@ -214,7 +222,7 @@ class pathing:
 
     def add_point(self, point):
         if pythagorean_distance(self.path[-1][0], self.path[-1][1],
-                             point[0], point[1])*state.fcal > 5:
+                                point[0], point[1])*state.fcal > 5:
             self.path.append(point)
             self.dist += round(pythagorean_distance(self.path[-2][0], self.path[-2][1],
                                           self.path[-1][0], self.path[-1][1])*state.fcal)

@@ -5,8 +5,9 @@
 # TODO 6: pathing
 # TODO 8: moving
 # DONE 9: deleting
+# TODO 10: create class for each shape type, unify using draw() function
 # DONE 10: hand orientation consideration, keep effects of hand
-# BUGFIX 1: hand disapearance makes circle stay; improved, testing in progress
+# BUGFIX 1: hand disappearance makes circle stay; improved, testing in progress
 # BUGFIX 2: properly cleanup pointer and the like after placing effect
 
 
@@ -23,6 +24,7 @@ cap.set(cv2.CAP_PROP_FRAME_WIDTH, state.scr_w)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, state.scr_h)
 tracker = tracker(cap)
 state.aoe_man = aoe_manager()
+# TODO shouldn't this be able to have the cv2 object passed?
 state.aoe_man.assign_cv2(cv2)
 
 while cap.isOpened():
