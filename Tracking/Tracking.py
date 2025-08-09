@@ -75,6 +75,12 @@ class tracker:
                     self.end = state.aoe_man.shape_creator(grab, self.end)
         self.draw(frame)
     def draw(self, frame):
+        """
+        displays the battlemap with effects and  camera view for the user,
+        which is basically a bugfixing feature
+        :param frame: the camera image
+        :return: None
+        """
         state.aoe_man.draw()
         cv2.imshow("Battlemap", state.overlay)
         cv2.imshow("Camera", frame)

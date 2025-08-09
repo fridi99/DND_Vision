@@ -52,7 +52,12 @@ class aoe_manager:
                 eff[1].draw()
 
     def delete_nearest(self, pos):
-        least = 9999
+        """
+        This function finds the closest effect to the pointer and deletes it
+        :param pos: tuple, koordinates of the pointer
+        :return: bool, if an effect was deleted or not
+        """
+        least = 999_999
         if len(self.effects) == 0:
             return False
         for eff in self.effects:
@@ -115,7 +120,11 @@ class aoe_manager:
         return point1, point2, point3, point4
 
     def shape_creator(self, grab, end):
-        """This function handles the creation of effects on the battlemap
+        """
+        This function generates shapes on the battlemap
+        :param grab: wether a grabing gesture is detected
+        :param end: the end point of the effect
+        :return: the newly chosen end point of the effect
         """
         if grab:
             self.resizing = True
