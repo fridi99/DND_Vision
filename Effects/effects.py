@@ -14,6 +14,7 @@ class aoe_manager:
        to the battlemap"""
     active = False
     path = None
+    st_time = 0
     time_set = False
     time_set2 = False
     resizing = False
@@ -130,9 +131,9 @@ class aoe_manager:
             self.resizing = True
             self.time_set2 = False
             if not self.time_set:
-                state.st_time = time.time()
+                self.st_time = time.time()
                 self.time_set = True
-            del_t = time.time() - state.st_time
+            del_t = time.time() - self.st_time
             if del_t > 0.4:
                 state.floating = False
                 self.time_set = False
@@ -155,9 +156,9 @@ class aoe_manager:
         elif self.active:
             self.resizing = False
             if not self.time_set2:
-                state.st_time = time.time()
+                self.st_time = time.time()
                 self.time_set2 = True
-            del_t = time.time() - state.st_time
+            del_t = time.time() - self.st_time
             if del_t > 0.4:
                 state.floating = False
                 self.time_set2 = False
@@ -185,7 +186,7 @@ class aoe_manager:
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "c" and not state.floating:
             if self.resizing:
-                state.points = self.generate_cone(state.aoe_start, state.pointer)
+                state.points = self.genferate_cone(state.aoe_start, state.pointer)
                 end = state.pointer
             cv2.polylines(state.overlay, np.int32([state.points]), True, state.Theme.active, 5)
             cv2.putText(state.overlay, str(round(

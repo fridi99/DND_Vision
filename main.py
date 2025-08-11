@@ -17,7 +17,7 @@ from Effects.effects import *
 from Logic.Logic import *
 from Tracking.Tracking import tracker
 
-open_map(state.map_index)
+battle_map = open_map(state.map_index)
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, state.scr_w)
@@ -29,7 +29,7 @@ state.aoe_man.assign_cv2(cv2)
 
 while cap.isOpened():
     keymanager(cap, state.aoe_man)
-    state.overlay = state.battle_map.copy()
+    state.overlay = battle_map.copy()
     tracker.track(state.aoe_man)
 
 cap.release()
