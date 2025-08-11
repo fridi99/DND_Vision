@@ -29,3 +29,4 @@ class Appdata():
     overlay = None
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
     aoe_man = None
+    battle_map = None

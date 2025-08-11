@@ -76,16 +76,16 @@ def open_map(i = 0):
     :param i: index of map to be opened, defaults to zero
     :return: relevant data of the map opened,
     """
-    battle_map = cv2.imread("./maps//" + os.listdir("maps")[i])
-    if battle_map is None:
+    state.battle_map = cv2.imread("./maps//" + os.listdir("maps")[i])
+    if state.battle_map is None:
         path = ask_for_file()
-        battle_map = cv2.imread(path)
-        if battle_map is None:
+        state.battle_map = cv2.imread(path)
+        if state.battle_map is None:
             raise FileNotFoundError("Battle map image not found!")
-    bmsize_h, bmsize_w = battle_map.shape[0], battle_map.shape[1]
+    bmsize_h, bmsize_w = state.battle_map.shape[0], state.battle_map.shape[1]
     if bmsize_h > bmsize_w:
-        battle_map = cv2.rotate(battle_map, cv2.ROTATE_90_CLOCKWISE)
-        bmsize_h, bmsize_w = battle_map.shape[0], battle_map.shape[1]
+        state.battle_map = cv2.rotate(state.battle_map, cv2.ROTATE_90_CLOCKWISE)
+        bmsize_h, bmsize_w = state.battle_map.shape[0], state.battle_map.shape[1]
 
     ### camera and frame setup ###
     screen = screeninfo.get_monitors()[-1] # fetches info of last monitor attached to device
@@ -93,7 +93,7 @@ def open_map(i = 0):
     state.aoe_position = (int(state.scr_w/2), int(state.scr_h/2))  # Center of image
     scale_w, scale_h = state.scr_w/bmsize_w, state.scr_h/bmsize_h
     if(scale_w > scale_h):
-        battle_map = cv2.resize(battle_map, (round(bmsize_w*scale_h), round(bmsize_h*scale_h))) # resizes to screen size
+        state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w*scale_h), round(bmsize_h*scale_h))) # resizes to screen size
     else:
-        battle_map = cv2.resize(battle_map, (round(bmsize_w * scale_w), round(bmsize_h * scale_w)))  # resizes to screen size
-    return battle_map
+        state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w * scale_w), round(bmsize_h * scale_w)))  # resizes to screen size
+    return True
