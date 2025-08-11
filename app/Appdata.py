@@ -17,7 +17,6 @@ class Appdata():
 
     # boolean variable initialization
     initiert: bool = False # flags if there is anything to show on the map
-    floating: bool = True # flags if the effect is still being moved
     once: bool = False # used to have the code only run once after going inactive
 
 
@@ -26,11 +25,7 @@ class Appdata():
     pointer: tuple = (500, 500) # initial position of pointer
     map_index: int = 0 # inital map index in file system
     cal_ratio: float = 1 # initial ratio for calibration. changed by using calibration function
-    aoe_start: tuple = (0,0)
     scr_w,scr_h = 0, 0
-    battle_map = None
-    aoe_position = (0,0)
     overlay = None
-    points = None
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
     aoe_man = None

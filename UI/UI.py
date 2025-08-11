@@ -28,31 +28,31 @@ def keymanager(cap, aoe_man):
     if key == ord("s"):
         # creates a sphere
         aoe_man.type = "s"
-        state.floating = True
+        aoe_man.floating = True
         aoe_man.active = True
-        state.aoe_start = (0, 0)
+        aoe_man.aoe_start = (0, 0)
     if key == ord("r"):
         # create a square
         aoe_man.type = "r"
-        state.floating = True
+        aoe_man.floating = True
         aoe_man.active = True
-        state.aoe_start = (0, 0)
+        aoe_man.aoe_start = (0, 0)
     if key == ord("l"):
         # creates a line
         aoe_man.type = "l"
-        state.floating = True
+        aoe_man.floating = True
         aoe_man.active = True
-        state.aoe_start = (0, 0)
+        aoe_man.aoe_start = (0, 0)
     if key == ord("c"):
         # creates a cone
         aoe_man.type = "c"
-        state.floating = True
+        aoe_man.floating = True
         aoe_man.active = True
-        state.aoe_start = (0, 0)
+        aoe_man.aoe_start = (0, 0)
     if key == ord("d"):
         # deletes effect closest to pinch
         aoe_man.type = "d"
-        state.floating = True
+        aoe_man.floating = True
         aoe_man.active = True
     if key == ord("z"):
         # deletes last effect in manager
@@ -72,5 +72,5 @@ def keymanager(cap, aoe_man):
     if key == ord("p"):
         # start a pathing operation
         aoe_man.type = "p"
-        state.floating = True
+        aoe_man.floating = True
         aoe_man.active = True

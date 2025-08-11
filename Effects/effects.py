@@ -19,6 +19,9 @@ class aoe_manager:
     time_set2 = False
     resizing = False
     size = 0
+    points = None
+    aoe_start = (0,0)
+    floating = False
 
     def __init__(self):
         self.effects = []
@@ -50,7 +53,7 @@ class aoe_manager:
                 points = self.generate_square(eff[1], eff[2])
                 self.cv2_obj.polylines(state.overlay, np.int32([points]), True, col, 5)
             if eff[0] == "p":
-                eff[1].draw()
+                eff[1].draw(self.active)
 
     def delete_nearest(self, pos):
         """
@@ -82,8 +85,8 @@ class aoe_manager:
         :return: the endpoint as constrained to 10 ft steps
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
-        dist = int(round((pythagorean_distance(start[0], start[1], end[0], end[1])), -2))
-        print(dist)
+        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) * state.fcal, -1))
+        dist = dist / state.fcal
         point = (int(start[0] + math.sin(ang) * dist), int(start[1] + math.cos(ang) * dist))
         return point
 
@@ -96,7 +99,8 @@ class aoe_manager:
         :return: three point list
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
-        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) / 5, -1)) * 5
+        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) * state.fcal/5, -0)) * 5
+        dist = dist/state.fcal
         point1 = (int(start[0] + math.sin(ang + rad(30)) * dist), int(start[1] + math.cos(ang + rad(30)) * dist))
         point2 = (int(start[0] + math.sin(ang - rad(30)) * dist), int(start[1] + math.cos(ang - rad(30)) * dist))
         return start, point1, point2
@@ -109,7 +113,8 @@ class aoe_manager:
         :return: four point list
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
-        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) / 5, -1)) * 5
+        dist = int(round((10+pythagorean_distance(start[0], start[1], end[0], end[1]))* state.fcal/ 5, -0)) * 5
+        dist = dist/state.fcal
         point1 = (int(start[0] + math.sin(ang + rad(90)) * dist / 2),
                   int(start[1] + math.cos(ang + rad(90)) * dist / 2))
         point2 = (int(start[0] + math.sin(ang - rad(90)) * dist / 2),
@@ -135,22 +140,22 @@ class aoe_manager:
                 self.time_set = True
             del_t = time.time() - self.st_time
             if del_t > 0.4:
-                state.floating = False
+                self.floating = False
                 self.time_set = False
-                state.aoe_start = state.aoe_position
+                self.aoe_start = state.aoe_position
                 if self.type == "d":
                     state.aoe_man.delete_nearest(state.pointer)
                     self.type = ""
                     self.active = False
 
-            elif state.floating:
+            elif self.floating:
                 cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t / 0.4 * 360, state.Theme.pointer, -1)
             state.aoe_size = int(round((10 + pythagorean_distance(int(state.pointer[0]), int(state.pointer[1]),
                                                                   state.aoe_position[0],
                                                                   state.aoe_position[1]) / 2) / 5,
                                        -1) * 5 * state.fcal)
 
-        elif state.floating:
+        elif self.floating:
             state.aoe_position = state.pointer
             self.time_set = False
         elif self.active:
@@ -160,16 +165,16 @@ class aoe_manager:
                 self.time_set2 = True
             del_t = time.time() - self.st_time
             if del_t > 0.4:
-                state.floating = False
+                self.floating = False
                 self.time_set2 = False
                 if self.type == "s":
                     state.aoe_man.add_effect((self.type, state.aoe_position, int(self.size/state.fcal)))
                 if self.type == "l":
-                    state.aoe_man.add_effect((self.type, state.aoe_start, end))
+                    state.aoe_man.add_effect((self.type, self.aoe_start, end))
                 if self.type == "c":
-                    state.aoe_man.add_effect((self.type, state.aoe_start, end))
+                    state.aoe_man.add_effect((self.type, self.aoe_start, end))
                 if self.type == "r":
-                    state.aoe_man.add_effect((self.type, state.aoe_start, end))
+                    state.aoe_man.add_effect((self.type, self.aoe_start, end))
                 if self.type == "p":
                     state.aoe_man.add_effect((self.type, self.path))
                     self.path = None
@@ -185,32 +190,35 @@ class aoe_manager:
             cv2.putText(state.overlay, str(self.size) + "ft",
                         [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-        if self.type == "c" and not state.floating:
+        if self.type == "c" and not self.floating:
             if self.resizing:
-                state.points = self.generate_cone(state.aoe_start, state.pointer)
+                self.points = self.generate_cone(self.aoe_start, state.pointer)
                 end = state.pointer
-            cv2.polylines(state.overlay, np.int32([state.points]), True, state.Theme.active, 5)
-            cv2.putText(state.overlay, str(round(
-                pythagorean_distance(state.aoe_start[0], state.aoe_start[1], end[0], end[1]) / 9.87 / 5,
-                -0) * 5) + "ft", [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
+            cv2.polylines(state.overlay, np.int32([self.points]), True, state.Theme.active, 5)
+            size = round((10 + pythagorean_distance(self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal / 5,
+                -0) * 5
+
+            cv2.putText(state.overlay, str(size) + "ft", [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-        if self.type == "r" and not state.floating:
+        if self.type == "r" and not self.floating:
             if self.resizing:
-                state.points = self.generate_square(state.aoe_start, state.pointer)
+                self.points = self.generate_square(self.aoe_start, state.pointer)
                 end = state.pointer
-            cv2.polylines(state.overlay, np.int32([state.points]), True, state.Theme.active, 5)
-            cv2.putText(state.overlay, str(round((10 + pythagorean_distance(state.aoe_start[0], state.aoe_start[1],
-                                                                            end[0], end[1])) * state.fcal,
-                                                 -0) * 5) + "ft",
+            size = round(
+                (10 + pythagorean_distance(self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal / 5,
+                -0) * 5
+            cv2.polylines(state.overlay, np.int32([self.points]), True, state.Theme.active, 5)
+            cv2.putText(state.overlay, str(size) + "ft",
                         [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-        if self.type == "l" and state.aoe_start != (0, 0):
+        if self.type == "l" and self.aoe_start != (0, 0):
             if self.resizing:
-                end = self.generate_line(state.aoe_start, state.pointer)
-            cv2.line(state.overlay, state.aoe_start, end, state.Theme.active, 10)
-            cv2.putText(state.overlay, str(round(
-                pythagorean_distance(state.aoe_start[0], state.aoe_start[1], end[0], end[1]) * state.fcal,
-                -1)) + "ft", [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
+                end = self.generate_line(self.aoe_start, state.pointer)
+            cv2.line(state.overlay, self.aoe_start, end, state.Theme.active, 10)
+            size = round(
+                (10 + pythagorean_distance(self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal,
+                -1)
+            cv2.putText(state.overlay, str(size) + "ft", [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         cv2.circle(state.overlay, state.pointer, 10, state.Theme.pointer, -1)
         if self.type == "p":
@@ -219,7 +227,8 @@ class aoe_manager:
                     self.path = pathing(cv2, state.pointer)
                 else:
                     self.path.add_point(state.pointer)
-                self.path.draw()
+            if not self.path is None:
+                self.path.draw(self.active)
         return end
 
 
@@ -238,8 +247,12 @@ class pathing:
             self.dist += round(pythagorean_distance(self.path[-2][0], self.path[-2][1],
                                           self.path[-1][0], self.path[-1][1])*state.fcal)
 
-    def draw(self):
-        self.cv2_obj.polylines(state.overlay, np.int32([self.path]), False, state.Theme.active, 5)
+    def draw(self, active):
+        if active:
+            col = state.Theme.active
+        elif not active:
+            col = state.Theme.passive
+        self.cv2_obj.polylines(state.overlay, np.int32([self.path]), False, col, 5)
         self.cv2_obj.putText(state.overlay, str(self.dist) + "ft", self.path[-1], cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
 
 
