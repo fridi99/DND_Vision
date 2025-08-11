@@ -172,6 +172,7 @@ class aoe_manager:
                     state.aoe_man.add_effect((self.type, state.aoe_start, end))
                 if self.type == "p":
                     state.aoe_man.add_effect((self.type, self.path))
+                    self.path = None
                 self.active = False
                 self.once = False
             else:
@@ -186,7 +187,7 @@ class aoe_manager:
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "c" and not state.floating:
             if self.resizing:
-                state.points = self.genferate_cone(state.aoe_start, state.pointer)
+                state.points = self.generate_cone(state.aoe_start, state.pointer)
                 end = state.pointer
             cv2.polylines(state.overlay, np.int32([state.points]), True, state.Theme.active, 5)
             cv2.putText(state.overlay, str(round(
