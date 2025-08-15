@@ -38,20 +38,20 @@ class aoe_manager:
 
     def draw(self):
         if self.active:
-            col = state.Theme.active
+            color = state.Theme.active
         elif not self.active:
-            col = state.Theme.passive
+            color = state.Theme.passive
         for eff in self.effects:
             if eff[0] == "s":
-                self.cv2_obj.circle(state.overlay, eff[1], eff[2], col, 5)
+                self.cv2_obj.circle(state.overlay, eff[1], eff[2], color, 5)
             if eff[0] == "l":
-                self.cv2_obj.line(state.overlay, eff[1], eff[2], col, 10)
+                self.cv2_obj.line(state.overlay, eff[1], eff[2], color, 10)
             if eff[0] == "c":
                 points = self.generate_cone(eff[1], eff[2])
-                self.cv2_obj.polylines(state.overlay, np.int32([points]), True, col, 5)
+                self.cv2_obj.polylines(state.overlay, np.int32([points]), True, color, 5)
             if eff[0] == "r":
                 points = self.generate_square(eff[1], eff[2])
-                self.cv2_obj.polylines(state.overlay, np.int32([points]), True, col, 5)
+                self.cv2_obj.polylines(state.overlay, np.int32([points]), True, color, 5)
             if eff[0] == "p":
                 eff[1].draw(self.active)
 
@@ -150,10 +150,9 @@ class aoe_manager:
 
             elif self.floating:
                 cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t / 0.4 * 360, state.Theme.pointer, -1)
-            state.aoe_size = int(round((10 + pythagorean_distance(int(state.pointer[0]), int(state.pointer[1]),
-                                                                  state.aoe_position[0],
-                                                                  state.aoe_position[1]) / 2) / 5,
-                                       -1) * 5 * state.fcal)
+            state.aoe_size = int(round((10 + pythagorean_distance(int(state.pointer[0]), int(state.pointer[1]), 
+                                                                  state.aoe_position[0], state.aoe_position[1]) / 2) / 5
+                                       ,-1) * 5 * state.fcal)
 
         elif self.floating:
             state.aoe_position = state.pointer
@@ -195,10 +194,11 @@ class aoe_manager:
                 self.points = self.generate_cone(self.aoe_start, state.pointer)
                 end = state.pointer
             cv2.polylines(state.overlay, np.int32([self.points]), True, state.Theme.active, 5)
-            size = round((10 + pythagorean_distance(self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal / 5,
-                -0) * 5
+            size = round((10 + pythagorean_distance(
+                self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal / 5,-0) * 5
 
-            cv2.putText(state.overlay, str(size) + "ft", [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
+            cv2.putText(state.overlay, str(size) + "ft", 
+                        [state.aoe_position[0] + 80, state.aoe_position[1] + 80], 
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "r" and not self.floating:
             if self.resizing:
@@ -241,6 +241,8 @@ class pathing:
         self.dist = 0
 
     def add_point(self, point):
+        # I would prefer this function to strictly allow only 5 ft steps, but
+        # did not make it work yet
         if pythagorean_distance(self.path[-1][0], self.path[-1][1],
                                 point[0], point[1])*state.fcal > 5:
             self.path.append(point)
@@ -249,10 +251,10 @@ class pathing:
 
     def draw(self, active):
         if active:
-            col = state.Theme.active
+            color = state.Theme.active
         elif not active:
-            col = state.Theme.passive
-        self.cv2_obj.polylines(state.overlay, np.int32([self.path]), False, col, 5)
+            color = state.Theme.passive
+        self.cv2_obj.polylines(state.overlay, np.int32([self.path]), False, color, 5)
         self.cv2_obj.putText(state.overlay, str(self.dist) + "ft", self.path[-1], cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
 
 

@@ -30,7 +30,7 @@ def calibration(cap):
     :rtype: float
     """
     calcode = cv2.imread("calibration_code.png")
-    screen = screeninfo.get_monitors()[-1]  # fetches info of last monitor attached to device
+    screen = screeninfo.get_monitors()[-1]
     state.scr_h, state.scr_w = screen.height, screen.width
     calcode = cv2.resize(calcode, (state.scr_h, state.scr_h))
     calcode = cv2.convertScaleAbs(calcode, alpha=0.6, beta=0)
@@ -88,9 +88,9 @@ def open_map(i = 0):
         bmsize_h, bmsize_w = state.battle_map.shape[0], state.battle_map.shape[1]
 
     ### camera and frame setup ###
-    screen = screeninfo.get_monitors()[-1] # fetches info of last monitor attached to device
+    screen = screeninfo.get_monitors()[-1]
     state.scr_w, state.scr_h = screen.width, screen.height
-    state.aoe_position = (int(state.scr_w/2), int(state.scr_h/2))  # Center of image
+    state.aoe_position = (int(state.scr_w/2), int(state.scr_h/2))
     scale_w, scale_h = state.scr_w/bmsize_w, state.scr_h/bmsize_h
     if(scale_w > scale_h):
         state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w*scale_h), round(bmsize_h*scale_h))) # resizes to screen size
