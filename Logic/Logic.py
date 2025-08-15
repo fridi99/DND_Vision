@@ -93,7 +93,20 @@ def open_map(i = 0):
     state.aoe_position = (int(state.scr_w/2), int(state.scr_h/2))
     scale_w, scale_h = state.scr_w/bmsize_w, state.scr_h/bmsize_h
     if(scale_w > scale_h):
-        state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w*scale_h), round(bmsize_h*scale_h))) # resizes to screen size
+        state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w*scale_h), round(bmsize_h*scale_h)))
     else:
-        state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w * scale_w), round(bmsize_h * scale_w)))  # resizes to screen size
+        state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w * scale_w), round(bmsize_h * scale_w)))
+    bmsize_h, bmsize_w = state.battle_map.shape[0], state.battle_map.shape[1]
+    if bmsize_w < state.scr_w:
+        dif = (state.scr_w - bmsize_w)
+        pad_l, pad_r = dif//2, dif - dif//2
+    else:
+        pad_l, pad_r = 0, 0
+    if bmsize_h < state.scr_h:
+        dif = (state.scr_h - bmsize_h)
+        pad_t, pad_b = dif // 2, dif - dif // 2
+    else:
+        pad_t, pad_b = 0, 0
+    state.battle_map = cv2.copyMakeBorder(state.battle_map, pad_t, pad_b, pad_l, pad_r, cv2.BORDER_CONSTANT, (0,0,0))
+
     return True

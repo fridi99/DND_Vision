@@ -24,7 +24,11 @@ def keymanager(cap, aoe_man):
         key = cv2.waitKey(1000) & 0xFF  # stops image from refreshing until a button is pressed to save computing resources
     if key == ord("q"):
         # quits program
-        exit()
+        if aoe_man.active:
+            aoe_man.floating = False
+            aoe_man.active = False
+        else:
+            exit()
     if key == ord("s"):
         # creates a sphere
         aoe_man.type = "s"

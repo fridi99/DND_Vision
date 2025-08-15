@@ -84,6 +84,6 @@ class tracker:
         state.aoe_man.draw()
         cv2.imshow("Battlemap", state.overlay)
         cv2.imshow("Camera", frame)
-        cv2.namedWindow("Battlemap", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("Battlemap", cv2.WND_PROP_FULLSCREEN)
         cv2.moveWindow('Battlemap', state.scr_w, 0)
         cv2.setWindowProperty("Battlemap", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)

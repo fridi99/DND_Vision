@@ -4,9 +4,9 @@ class Theme():
     """This class provides color values and similar to determine apperance of
     effects"""
     passive = (100,0,100)
-    active = (60,60,60)
+    active = (100,100,100)
     pointer = (50, 150, 0)
-    blowout = (0.15, 110)
+    blowout = (0.2, 60)
     pathing = (100, 0, 100)
     text = (200,200,200)
 

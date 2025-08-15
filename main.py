@@ -24,7 +24,6 @@ cap.set(cv2.CAP_PROP_FRAME_WIDTH, state.scr_w)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, state.scr_h)
 tracker = tracker(cap)
 state.aoe_man = aoe_manager()
-# TODO shouldn't this be able to have the cv2 object passed?
 state.aoe_man.assign_cv2(cv2)
 
 while cap.isOpened():
