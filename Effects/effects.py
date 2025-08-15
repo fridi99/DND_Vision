@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 import time
 
-
+# test
 
 class aoe_manager:
     """The aoe_manager class stores and creates all effects that should be saved
