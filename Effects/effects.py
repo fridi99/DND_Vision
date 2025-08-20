@@ -22,13 +22,15 @@ class aoe_manager:
     points = None
     aoe_start = (0,0)
     floating = False
+    quit = False
+
 
     def __init__(self):
         self.effects = []
         self.type = ""
 
     def activate_type(self, type):
-        allowlist = ["s", "c", "r", "l"] # will reject other types
+        allowlist = ["s", "c", "r", "l", "p"] # will reject other types
         if type not in allowlist:
             raise ValueError(f"The types passed must be in the following allowlist: {allowlist}")
         self.type = type
@@ -46,6 +48,8 @@ class aoe_manager:
         self.effects.append(effect)
 
     def draw(self):
+        if self.quit:
+            exit()
         if self.active:
             color = state.Theme.active
         elif not self.active:
