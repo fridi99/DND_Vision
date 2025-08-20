@@ -6,7 +6,7 @@ class Theme():
     passive = (100,0,100)
     active = (100,100,100)
     pointer = (50, 150, 0)
-    blowout = (0.2, 60)
+    blowout = (0.2, 100)
     pathing = (100, 0, 100)
     text = (200,200,200)
 
