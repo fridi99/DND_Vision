@@ -22,10 +22,21 @@ class aoe_manager:
     points = None
     aoe_start = (0,0)
     floating = False
+    quit = False
+
 
     def __init__(self):
         self.effects = []
         self.type = ""
+
+    def activate_type(self, type):
+        allowlist = ["s", "c", "r", "l", "p"] # will reject other types
+        if type not in allowlist:
+            raise ValueError(f"The types passed must be in the following allowlist: {allowlist}")
+        self.type = type
+        self.floating = True
+        self.active = True
+        self.aoe_start = (0, 0)
 
     def assign_cv2(self, cv2_obj):
         """to prevent circular import the cv2 object is set using this function"""
@@ -37,6 +48,8 @@ class aoe_manager:
         self.effects.append(effect)
 
     def draw(self):
+        if self.quit:
+            exit()
         if self.active:
             color = state.Theme.active
         elif not self.active:
@@ -144,7 +157,7 @@ class aoe_manager:
                 self.time_set = False
                 self.aoe_start = state.aoe_position
                 if self.type == "d":
-                    state.aoe_man.delete_nearest(state.pointer)
+                    aoe_man.delete_nearest(state.pointer)
                     self.type = ""
                     self.active = False
 
@@ -167,15 +180,15 @@ class aoe_manager:
                 self.floating = False
                 self.time_set2 = False
                 if self.type == "s":
-                    state.aoe_man.add_effect((self.type, state.aoe_position, int(self.size/state.fcal)))
+                    aoe_man.add_effect((self.type, state.aoe_position, int(self.size/state.fcal)))
                 if self.type == "l":
-                    state.aoe_man.add_effect((self.type, self.aoe_start, end))
+                    aoe_man.add_effect((self.type, self.aoe_start, end))
                 if self.type == "c":
-                    state.aoe_man.add_effect((self.type, self.aoe_start, end))
+                    aoe_man.add_effect((self.type, self.aoe_start, end))
                 if self.type == "r":
-                    state.aoe_man.add_effect((self.type, self.aoe_start, end))
+                    aoe_man.add_effect((self.type, self.aoe_start, end))
                 if self.type == "p":
-                    state.aoe_man.add_effect((self.type, self.path))
+                    aoe_man.add_effect((self.type, self.path))
                     self.path = None
                 self.active = False
                 self.once = False
@@ -260,3 +273,4 @@ class pathing:
 
 
 
+aoe_man = aoe_manager()

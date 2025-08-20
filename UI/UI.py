@@ -2,9 +2,9 @@ from app.Appdata import Appdata as state
 import cv2
 from Effects.effects import *
 from Logic.Logic import *
+from Effects.effects import aoe_man
 
-
-def keymanager(cap, aoe_man):
+def keymanager(cap):
     # keymapping:
     # q: quits
     # s: sphere
@@ -24,31 +24,26 @@ def keymanager(cap, aoe_man):
         key = cv2.waitKey(1000) & 0xFF  # stops image from refreshing until a button is pressed to save computing resources
     if key == ord("q"):
         # quits program
-        exit()
+        if aoe_man.active:
+            aoe_man.floating = False
+            aoe_man.active = False
+        else:
+            exit()
     if key == ord("s"):
         # creates a sphere
-        aoe_man.type = "s"
-        aoe_man.floating = True
-        aoe_man.active = True
-        aoe_man.aoe_start = (0, 0)
+        aoe_man.activate_type("s")
     if key == ord("r"):
         # create a square
-        aoe_man.type = "r"
-        aoe_man.floating = True
-        aoe_man.active = True
-        aoe_man.aoe_start = (0, 0)
+        aoe_man.activate_type("r")
     if key == ord("l"):
         # creates a line
-        aoe_man.type = "l"
-        aoe_man.floating = True
-        aoe_man.active = True
-        aoe_man.aoe_start = (0, 0)
+        aoe_man.activate_type("l")
     if key == ord("c"):
         # creates a cone
-        aoe_man.type = "c"
-        aoe_man.floating = True
-        aoe_man.active = True
-        aoe_man.aoe_start = (0, 0)
+        aoe_man.activate_type("c")
+    if key == ord("p"):
+        # start a pathing operation
+        aoe_man.activate_type("p")
     if key == ord("d"):
         # deletes effect closest to pinch
         aoe_man.type = "d"
@@ -56,7 +51,7 @@ def keymanager(cap, aoe_man):
         aoe_man.active = True
     if key == ord("z"):
         # deletes last effect in manager
-        state.aoe_man.delete_last()
+        aoe_man.delete_last()
     if key == ord("k"):
         # calibrates battlemap using qr code
         state.cal_ratio = calibration(cap)
@@ -69,8 +64,3 @@ def keymanager(cap, aoe_man):
             else:
                 state.map_index += 1
             open_map(state.map_index)
-    if key == ord("p"):
-        # start a pathing operation
-        aoe_man.type = "p"
-        aoe_man.floating = True
-        aoe_man.active = True

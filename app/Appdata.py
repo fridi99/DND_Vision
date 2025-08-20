@@ -4,9 +4,9 @@ class Theme():
     """This class provides color values and similar to determine apperance of
     effects"""
     passive = (100,0,100)
-    active = (60,60,60)
+    active = (100,100,100)
     pointer = (50, 150, 0)
-    blowout = (0.15, 110)
+    blowout = (0.2, 100)
     pathing = (100, 0, 100)
     text = (200,200,200)
 
@@ -14,6 +14,7 @@ class Theme():
 class Appdata():
     # flags:
     dev_mode: bool = False # shows additional information, like hand landmarks
+    api_active: bool = True # if the api should be launched or not
 
     # boolean variable initialization
     initiert: bool = False # flags if there is anything to show on the map
@@ -28,5 +29,4 @@ class Appdata():
     scr_w,scr_h = 0, 0
     overlay = None
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
-    aoe_man = None
     battle_map = None

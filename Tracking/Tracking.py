@@ -3,6 +3,7 @@ import cv2
 import mediapipe as mp
 from UI.UI import *
 from Effects.effects import *
+from Effects.effects import aoe_man
 
 
 
@@ -36,7 +37,7 @@ class tracker:
         else:
             return False
 
-    def track(self, aoe_man):
+    def track(self):
         ret, self.frame = self.cap.read()
         self.frame = frame = self.frame[int(state.scr_h*(1/2 - state.cal_ratio/4)):int(state.scr_h*(1/2 + state.cal_ratio/4)),
             int(state.scr_w*(1/2 - state.cal_ratio/4)):int(state.scr_w*(1/2 + state.cal_ratio/4))]
@@ -72,7 +73,7 @@ class tracker:
 
                 if aoe_man.active:
                     grab = self.grabbing(index_finger, thumb_tip)
-                    self.end = state.aoe_man.shape_creator(grab, self.end)
+                    self.end = aoe_man.shape_creator(grab, self.end)
         self.draw(frame)
     def draw(self, frame):
         """
@@ -81,9 +82,9 @@ class tracker:
         :param frame: the camera image
         :return: None
         """
-        state.aoe_man.draw()
+        aoe_man.draw()
         cv2.imshow("Battlemap", state.overlay)
         cv2.imshow("Camera", frame)
-        cv2.namedWindow("Battlemap", cv2.WINDOW_NORMAL)
+        cv2.namedWindow("Battlemap", cv2.WND_PROP_FULLSCREEN)
         cv2.moveWindow('Battlemap', state.scr_w, 0)
         cv2.setWindowProperty("Battlemap", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
