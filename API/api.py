@@ -5,6 +5,7 @@ import threading
 import os
 from Logic.Logic import open_map
 from app.Appdata import Appdata as state
+from Effects.effects import aoe_man
 
 app = FastAPI()
 
@@ -15,7 +16,11 @@ class Effect(BaseModel):
 
 @app.post("/effect")
 def add_effect(effect: Effect):
-    print(f"successfully received Post for effect of type: {effect.type}")
+    allowlist = ["s", "c", "r", "l"]  # will reject other types
+    if effect.type not in allowlist:
+        return {"status": "unrecognized type", "effect": effect, }
+    print(f"successfully received post with type: {effect.type}")
+    aoe_man.activate_type(effect.type)
     return {"status": "ok", "effect": effect}
 
 @app.post("/nextmap")
@@ -28,6 +33,7 @@ def test(effect: Effect):
         open_map(state.map_index)
     return {"status": "ok"}
 
+
 def run_server():
     uvicorn.run(app, host="127.0.0.1", port=8000)
 
@@ -35,3 +41,5 @@ def start_server():
     server_thread = threading.Thread(target=run_server)
     server_thread.daemon = True
     server_thread.start()
+
+run_server()

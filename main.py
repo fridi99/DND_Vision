@@ -18,6 +18,7 @@ from Logic.Logic import *
 from Tracking.Tracking import tracker
 from API.api import app
 import API.api as api
+from Effects.effects import aoe_man
 
 open_map(state.map_index)
 
@@ -25,14 +26,13 @@ cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, state.scr_w)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, state.scr_h)
 tracker = tracker(cap)
-state.aoe_man = aoe_manager()
-state.aoe_man.assign_cv2(cv2)
+aoe_man.assign_cv2(cv2)
 api.start_server()
 
 while cap.isOpened():
-    keymanager(cap, state.aoe_man)
+    keymanager(cap)
     state.overlay = state.battle_map.copy()
-    tracker.track(state.aoe_man)
+    tracker.track()
 
 cap.release()
 cv2.destroyAllWindows()
