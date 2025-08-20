@@ -14,6 +14,7 @@ class Theme():
 class Appdata():
     # flags:
     dev_mode: bool = False # shows additional information, like hand landmarks
+    api_active: bool = True # if the api should be launched or not
 
     # boolean variable initialization
     initiert: bool = False # flags if there is anything to show on the map

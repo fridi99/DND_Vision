@@ -16,6 +16,8 @@ from Effects.effects import *
 
 from Logic.Logic import *
 from Tracking.Tracking import tracker
+from API.api import app
+import API.api as api
 
 open_map(state.map_index)
 
@@ -25,6 +27,7 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, state.scr_h)
 tracker = tracker(cap)
 state.aoe_man = aoe_manager()
 state.aoe_man.assign_cv2(cv2)
+api.start_server()
 
 while cap.isOpened():
     keymanager(cap, state.aoe_man)
