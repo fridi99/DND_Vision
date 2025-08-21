@@ -18,7 +18,6 @@ class Appdata():
     show_stats: bool = True # adds stats like detection confidence
 
 
-
     # variable initialization
     fcal: float = 0.0795 # factor to scale image to size of table top projection
     pointer: tuple = (500, 500) # initial position of pointer

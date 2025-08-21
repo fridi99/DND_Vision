@@ -15,6 +15,7 @@ class keymanager:
         # r: square
         # c: cone
         # l: line
+        # p: pathing
         # d: delete closest
         # z: delete latest
         # n: move to next map
