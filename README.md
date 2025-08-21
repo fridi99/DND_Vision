@@ -1,7 +1,7 @@
 # D&D Vision
-## Table Top manipulation pawered by hand tracking
+## Table Top manipulation powered by hand tracking
 
-The goal of this project is to create a Software, that allows players of tabletop games to add Area of Effect stencils to digital battlemaps without needing additional hardware.
+The goal of this project is to create a Software that allows players of tabletop games to add Area of Effect stencils to projected battlemaps without needing additional hardware.
 Hand tracking is used to allow players to place and size effects, through pinching gestures.
 
 The DM, using the PC running the Software can interface with the software using the following keys:
