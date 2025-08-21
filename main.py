@@ -27,10 +27,12 @@ cap.set(cv2.CAP_PROP_FRAME_WIDTH, state.scr_w)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, state.scr_h)
 tracker = tracker(cap)
 aoe_man.assign_cv2(cv2)
-api.start_server()
+keyman = keymanager(cap)
+if state.api_active:
+    api.start_server()
 
 while cap.isOpened():
-    keymanager(cap)
+    keyman.process_keypress()
     state.overlay = state.battle_map.copy()
     tracker.track()
 

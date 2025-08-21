@@ -6,7 +6,7 @@ class Theme():
     passive = (100,0,100)
     active = (100,100,100)
     pointer = (50, 150, 0)
-    blowout = (0.2, 100)
+    blowout = (0.15, 100)
     pathing = (100, 0, 100)
     text = (200,200,200)
 
@@ -14,11 +14,9 @@ class Theme():
 class Appdata():
     # flags:
     dev_mode: bool = False # shows additional information, like hand landmarks
-    api_active: bool = True # if the api should be launched or not
+    api_active: bool = False # if the api should be launched or not
+    show_stats: bool = True # adds stats like detection confidence
 
-    # boolean variable initialization
-    initiert: bool = False # flags if there is anything to show on the map
-    once: bool = False # used to have the code only run once after going inactive
 
 
     # variable initialization

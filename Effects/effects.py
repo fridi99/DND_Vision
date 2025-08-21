@@ -29,7 +29,21 @@ class aoe_manager:
         self.effects = []
         self.type = ""
 
+    def reset(self):
+        self.active = False
+        self.path = None
+        self.st_time = 0
+        self.time_set = False
+        self.time_set2 = False
+        self.resizing = False
+        self.size = 0
+        self.points = None
+        self.aoe_start = (0, 0)
+        self.floating = False
+        self.quit = False
+
     def activate_type(self, type):
+        self.reset()
         allowlist = ["s", "c", "r", "l", "p"] # will reject other types
         if type not in allowlist:
             raise ValueError(f"The types passed must be in the following allowlist: {allowlist}")
