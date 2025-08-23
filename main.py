@@ -29,7 +29,7 @@ if state.api_active:
 
 while tracker.cap.isOpened():
     keyman.process_keypress()
-    state.overlay = state.battle_map.copy()
+    aoe_man.overlay = tracker.battle_map.copy()
     tracker.track()
 
 tracker.cap.release()

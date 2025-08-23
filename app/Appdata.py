@@ -22,5 +22,4 @@ class Appdata():
     fcal: float = 0.0795 # factor to scale image to size of table top projection
     pointer: tuple = (500, 500) # initial position of pointer
     cal_ratio: float = 1 # initial ratio for calibration. changed by using calibration function
-    overlay = None
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
