@@ -3,7 +3,7 @@ from pydantic import BaseModel
 import uvicorn
 import threading
 import os
-from Logic.Logic import open_map, calibration
+from Logic.Logic import calibration
 from app.Appdata import Appdata as state
 from Effects.effects import aoe_man
 
@@ -47,7 +47,7 @@ def escape():
 
 
 @app.post("/nextmap")
-def test(effect: Effect):
+def nextmap(effect: Effect):
     if (len(os.listdir("maps")) != 1):
         if (len(os.listdir("maps")) <= state.map_index + 1):
             state.map_index = 0

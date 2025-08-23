@@ -21,9 +21,6 @@ class Appdata():
     # variable initialization
     fcal: float = 0.0795 # factor to scale image to size of table top projection
     pointer: tuple = (500, 500) # initial position of pointer
-    map_index: int = 0 # inital map index in file system
     cal_ratio: float = 1 # initial ratio for calibration. changed by using calibration function
-    scr_w,scr_h = 0, 0
     overlay = None
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
-    battle_map = None

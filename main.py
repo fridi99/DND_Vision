@@ -20,21 +20,17 @@ from API.api import app
 import API.api as api
 from Effects.effects import aoe_man
 
-open_map(state.map_index)
 
-cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, state.scr_w)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, state.scr_h)
-tracker = tracker(cap)
+tracker = tracker()
 aoe_man.assign_cv2(cv2)
-keyman = keymanager(cap)
+keyman = keymanager(tracker)
 if state.api_active:
     api.start_server()
 
-while cap.isOpened():
+while tracker.cap.isOpened():
     keyman.process_keypress()
     state.overlay = state.battle_map.copy()
     tracker.track()
 
-cap.release()
+tracker.cap.release()
 cv2.destroyAllWindows()

@@ -13,10 +13,15 @@ class tracker:
     This class handles hand tracking and also draws the battlemap, because that is such simple code.
 
     """
-
+    map_index = 0
     initiert: bool = False
-    def __init__(self, cap):
-        self.cap = cap
+    def __init__(self):
+        screen = screeninfo.get_monitors()[-1]
+        self.scr_w, self.scr_h = screen.width, screen.height
+        self.battle_map = self.open_map()
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.scr_w)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.scr_h)
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(min_detection_confidence=0.3,
                                          min_tracking_confidence=0.6, max_num_hands=1)
@@ -39,11 +44,53 @@ class tracker:
         else:
             return False
 
+    def open_map(self):
+        """
+        This function opens the map in maps directory at given index
+        :param i: index of map to be opened, defaults to zero
+        :return: relevant data of the map opened,
+        """
+        state.battle_map = cv2.imread("./maps//" + os.listdir("maps")[self.map_index])
+        if state.battle_map is None:
+            path = ask_for_file()
+            state.battle_map = cv2.imread(path)
+            if state.battle_map is None:
+                raise FileNotFoundError("Battle map image not found!")
+        bmsize_h, bmsize_w = state.battle_map.shape[0], state.battle_map.shape[1]
+        if bmsize_h > bmsize_w:
+            state.battle_map = cv2.rotate(state.battle_map, cv2.ROTATE_90_CLOCKWISE)
+            bmsize_h, bmsize_w = state.battle_map.shape[0], state.battle_map.shape[1]
+
+        ### camera and frame setup ###
+        screen = screeninfo.get_monitors()[-1]
+        self.scr_w, self.scr_h = screen.width, screen.height
+        state.aoe_position = (int(self.scr_w / 2), int(self.scr_h / 2))
+        scale_w, scale_h = self.scr_w / bmsize_w, self.scr_h / bmsize_h
+        if (scale_w > scale_h):
+            state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w * scale_h), round(bmsize_h * scale_h)))
+        else:
+            state.battle_map = cv2.resize(state.battle_map, (round(bmsize_w * scale_w), round(bmsize_h * scale_w)))
+        bmsize_h, bmsize_w = state.battle_map.shape[0], state.battle_map.shape[1]
+        if bmsize_w < self.scr_w:
+            dif = (self.scr_w - bmsize_w)
+            pad_l, pad_r = dif // 2, dif - dif // 2
+        else:
+            pad_l, pad_r = 0, 0
+        if bmsize_h < self.scr_h:
+            dif = (self.scr_h - bmsize_h)
+            pad_t, pad_b = dif // 2, dif - dif // 2
+        else:
+            pad_t, pad_b = 0, 0
+        state.battle_map = cv2.copyMakeBorder(state.battle_map, pad_t, pad_b, pad_l, pad_r, cv2.BORDER_CONSTANT,
+                                              (0, 0, 0))
+
+        return True
+
     def track(self):
-        ret, self.frame = self.cap.read()
-        self.frame = frame = self.frame[int(state.scr_h*(1/2 - state.cal_ratio/4)):int(state.scr_h*(1/2 + state.cal_ratio/4)),
-            int(state.scr_w*(1/2 - state.cal_ratio/4)):int(state.scr_w*(1/2 + state.cal_ratio/4))]
-        h, w, _ = frame.shape
+        ret, frame = self.cap.read()
+        cam_h, cam_w, _ = frame.shape
+        frame = frame[int(cam_h*(1/2 - state.cal_ratio/4)):int(cam_h*(1/2 + state.cal_ratio/4)),
+            int(cam_w*(1/2 - state.cal_ratio/4)):int(cam_w*(1/2 + state.cal_ratio/4))]
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = self.hands.process(rgb_frame)
         if aoe_man.active:
@@ -60,10 +107,10 @@ class tracker:
 
 
             if self.initiert and results.multi_hand_landmarks:  # should only run if a complete hand is detected, does not always work however
-                index_x, index_y = int(index_finger.x * w * 2.5 - 120), int(index_finger.y * h * 2.5 - 150)
-                thumb_x, thumb_y = int(thumb_tip.x * w * 2.5 - 120), int(thumb_tip.y * h * 2.5 - 150)
-                ref_point = [int((ref_point_lm[0].x + ref_point_lm[1].x) * w * 1.25 - 120),
-                             int((ref_point_lm[0].y + ref_point_lm[1].y) * h * 1.25 - 150)]
+                index_x, index_y = int(index_finger.x * cam_w * 1.25/state.cal_ratio - 120), int(index_finger.y * cam_h * 1.25/state.cal_ratio - 150)
+                thumb_x, thumb_y = int(thumb_tip.x * cam_w/state.cal_ratio * 1.25 - 120), int(thumb_tip.y * cam_h/state.cal_ratio * 1.25 - 150)
+                ref_point = [int((ref_point_lm[0].x + ref_point_lm[1].x) * cam_w/(2*state.cal_ratio) * 1.25 - 120),
+                             int((ref_point_lm[0].y + ref_point_lm[1].y) * cam_h/(2*state.cal_ratio) * 1.25 - 150)]
                 state.pointer = [int(((index_x + thumb_x * 2) / 3 + ((index_x + thumb_x * 2) / 3 - ref_point[0]) +
                                       state.pointer[0] * 3) / 4),
                                  int(((index_y + thumb_y * 2) / 3 + ((index_y + thumb_y * 2) / 3 - ref_point[1]) +
@@ -71,7 +118,7 @@ class tracker:
                 if state.dev_mode:
                     self.mp_drawing.draw_landmarks(state.overlay, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
                     cv2.circle(state.overlay, [index_x, index_y], 10, (200, 0, 0), -1)
-                    cv2.circle(state.overlay, ref_point, 10, (50, 255, 0), -1)
+                    cv2.circle(state.overlay, ref_point, 10, (0, 30, 200), -1)
                     cv2.circle(state.overlay, [thumb_x, thumb_y], 10, (200, 0, 0), -1)
                 if results.multi_handedness and state.show_stats:
                     for handedness in results.multi_handedness:
@@ -95,5 +142,5 @@ class tracker:
         cv2.imshow("Battlemap", state.overlay)
         cv2.imshow("Camera", frame)
         cv2.namedWindow("Battlemap", cv2.WND_PROP_FULLSCREEN)
-        cv2.moveWindow('Battlemap', state.scr_w, 0)
+        cv2.moveWindow('Battlemap', self.scr_w, 0)
         cv2.setWindowProperty("Battlemap", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)

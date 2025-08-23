@@ -6,8 +6,9 @@ from Effects.effects import aoe_man
 
 class keymanager:
     once = False
-    def __init__(self, cap):
-        self.cap = cap
+    def __init__(self, tracker):
+        self.cap = tracker.cap
+        self.track = tracker
     def process_keypress(self):
         # keymapping:
         # q: quits
@@ -64,8 +65,8 @@ class keymanager:
         if key == ord("n"):
             # moves to next battlemap
             if (len(os.listdir("maps")) != 1):
-                if (len(os.listdir("maps")) <= state.map_index + 1):
-                    state.map_index = 0
+                if (len(os.listdir("maps")) <= self.track.map_index + 1):
+                    self.track.map_index = 0
                 else:
-                    state.map_index += 1
-                open_map(state.map_index)
+                    self.track.map_index += 1
+                self.track.open_map()
