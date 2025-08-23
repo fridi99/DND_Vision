@@ -38,8 +38,8 @@ class tracker:
         """
         it_x, it_y = ind_tip.x, ind_tip.y
         tt_x, tt_y = thum_tip.x, thum_tip.y
-        ref = 0.03
-        if pythagorean_distance(it_x, it_y, tt_x, tt_y) / 1.5 < ref:
+        ref = 0.06
+        if pythagorean_distance(it_x, it_y, tt_x, tt_y) < ref:
             return True
         else:
             return False
@@ -112,9 +112,9 @@ class tracker:
                 ref_point = [int((ref_point_lm[0].x + ref_point_lm[1].x) * cam_w/(2*state.cal_ratio) * 1.25 - 120),
                              int((ref_point_lm[0].y + ref_point_lm[1].y) * cam_h/(2*state.cal_ratio) * 1.25 - 150)]
                 state.pointer = [int(((index_x + thumb_x * 2) / 3 + ((index_x + thumb_x * 2) / 3 - ref_point[0]) +
-                                      state.pointer[0] * 3) / 4),
+                                      state.pointer[0] * 6) / 7),
                                  int(((index_y + thumb_y * 2) / 3 + ((index_y + thumb_y * 2) / 3 - ref_point[1]) +
-                                      state.pointer[1] * 3) / 4)]
+                                      state.pointer[1] * 6) / 7)]
                 if state.dev_mode:
                     self.mp_drawing.draw_landmarks(aoe_man.overlay, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
                     cv2.circle(aoe_man.overlay, [index_x, index_y], 10, (200, 0, 0), -1)

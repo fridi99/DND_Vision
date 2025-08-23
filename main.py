@@ -5,7 +5,7 @@
 # TODO 6: pathing
 # TODO 8: moving
 # DONE 9: deleting
-# TODO 10: create class for each shape type, unify using draw() function
+# TODO 10: make choosing a size easier and more reliable
 # DONE 10: hand orientation consideration, keep effects of hand
 # BUGFIX 1: hand disappearance makes circle stay; improved, testing in progress
 # BUGFIX 2: properly cleanup pointer and the like after placing effect
