@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import numpy as np
 
 class Theme():
     """This class provides color values and similar to determine apperance of
@@ -20,6 +21,6 @@ class Appdata():
 
     # variable initialization
     fcal: float = 0.0795 # factor to scale image to size of table top projection
-    pointer: tuple = (500, 500) # initial position of pointer
+    pointer = np.array([500, 500]) # initial position of pointer
     cal_ratio: float = 1 # initial ratio for calibration. changed by using calibration function
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
