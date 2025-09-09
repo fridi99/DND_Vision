@@ -56,6 +56,11 @@ class aoe_manager:
         self.aoe_start = np.array([0, 0], dtype=np.int32)
     to_move = 0
     def move(self, grab):
+        if len(self.effects) == 0:
+            print("No effects to move!")
+            self.active = False
+            self.type = ""
+            return False
         if not self.floating and grab:
             least = 999_999
             for ite, eff in enumerate(self.effects):
@@ -64,6 +69,12 @@ class aoe_manager:
                     self.to_move = ite
                     least = dist
             self.floating = True
+            if least == 999_999:
+                self.active = False
+                self.type = ""
+                print("No movable effect! Path objects can not be moved")
+                return False
+
         if grab and self.floating:
             vect = self.effects[self.to_move][2] - self.effects[self.to_move][1]
             self.effects[self.to_move][1] = state.pointer

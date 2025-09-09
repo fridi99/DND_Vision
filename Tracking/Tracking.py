@@ -94,6 +94,12 @@ class tracker:
         return True
 
     def track(self):
+        if aoe_man.type == "m":
+            if len(aoe_man.effects) == 0:
+                print("No effects to move!")
+                aoe_man.active = False
+                aoe_man.type = ""
+                return False
         ret, frame = self.cap.read()
         cam_h, cam_w, _ = frame.shape
         frame = frame[int(cam_h*(1/2 - state.cal_ratio/4)):int(cam_h*(1/2 + state.cal_ratio/4)),
@@ -134,6 +140,7 @@ class tracker:
                 if aoe_man.active:
                     self.grab = self.grabbing(index_finger, thumb_tip)
                     if aoe_man.type == "m":
+
                         aoe_man.move(self.grab)
                     else:
                         self.end = aoe_man.shape_creator(self.grab, self.end)
