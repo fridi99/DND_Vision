@@ -6,7 +6,7 @@ class Theme():
     passive = (100,0,100)
     active = (100,100,100)
     pointer = (50, 150, 0)
-    blowout = (0.2, 100)
+    blowout = (0.15, 100)
     pathing = (100, 0, 100)
     text = (200,200,200)
 
@@ -14,19 +14,12 @@ class Theme():
 class Appdata():
     # flags:
     dev_mode: bool = False # shows additional information, like hand landmarks
-    api_active: bool = True # if the api should be launched or not
-
-    # boolean variable initialization
-    initiert: bool = False # flags if there is anything to show on the map
-    once: bool = False # used to have the code only run once after going inactive
+    api_active: bool = False # if the api should be launched or not
+    show_stats: bool = True # adds stats like detection confidence
 
 
     # variable initialization
     fcal: float = 0.0795 # factor to scale image to size of table top projection
     pointer: tuple = (500, 500) # initial position of pointer
-    map_index: int = 0 # inital map index in file system
     cal_ratio: float = 1 # initial ratio for calibration. changed by using calibration function
-    scr_w,scr_h = 0, 0
-    overlay = None
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
-    battle_map = None

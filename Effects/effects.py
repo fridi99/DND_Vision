@@ -3,6 +3,7 @@ import math
 from math import cos, sin, tan, sqrt
 from math import radians as rad
 from Logic.Logic import pythagorean_distance
+from numpy.linalg import norm
 import numpy as np
 import cv2
 import time
@@ -23,13 +24,28 @@ class aoe_manager:
     aoe_start = (0,0)
     floating = False
     quit = False
+    overlay = None
 
 
     def __init__(self):
         self.effects = []
         self.type = ""
 
+    def reset(self):
+        self.active = False
+        self.path = None
+        self.st_time = 0
+        self.time_set = False
+        self.time_set2 = False
+        self.resizing = False
+        self.size = 0
+        self.points = None
+        self.aoe_start = (0, 0)
+        self.floating = False
+        self.quit = False
+
     def activate_type(self, type):
+        self.reset()
         allowlist = ["s", "c", "r", "l", "p"] # will reject other types
         if type not in allowlist:
             raise ValueError(f"The types passed must be in the following allowlist: {allowlist}")
@@ -56,15 +72,15 @@ class aoe_manager:
             color = state.Theme.passive
         for eff in self.effects:
             if eff[0] == "s":
-                self.cv2_obj.circle(state.overlay, eff[1], eff[2], color, 5)
+                self.cv2_obj.circle(self.overlay, eff[1], eff[2], color, 5)
             if eff[0] == "l":
-                self.cv2_obj.line(state.overlay, eff[1], eff[2], color, 10)
+                self.cv2_obj.line(self.overlay, eff[1], eff[2], color, 10)
             if eff[0] == "c":
                 points = self.generate_cone(eff[1], eff[2])
-                self.cv2_obj.polylines(state.overlay, np.int32([points]), True, color, 5)
+                self.cv2_obj.polylines(self.overlay, np.int32([points]), True, color, 5)
             if eff[0] == "r":
                 points = self.generate_square(eff[1], eff[2])
-                self.cv2_obj.polylines(state.overlay, np.int32([points]), True, color, 5)
+                self.cv2_obj.polylines(self.overlay, np.int32([points]), True, color, 5)
             if eff[0] == "p":
                 eff[1].draw(self.active)
 
@@ -162,7 +178,7 @@ class aoe_manager:
                     self.active = False
 
             elif self.floating:
-                cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t / 0.4 * 360, state.Theme.pointer, -1)
+                cv2.ellipse(self.overlay, state.pointer, (30, 30), 0, 0, del_t / 0.4 * 360, state.Theme.pointer, -1)
             state.aoe_size = int(round((10 + pythagorean_distance(int(state.pointer[0]), int(state.pointer[1]), 
                                                                   state.aoe_position[0], state.aoe_position[1]) / 2) / 5
                                        ,-1) * 5 * state.fcal)
@@ -193,24 +209,24 @@ class aoe_manager:
                 self.active = False
                 self.once = False
             else:
-                cv2.ellipse(state.overlay, state.pointer, (30, 30), 0, 0, del_t / 0.4 * 360, state.Theme.pointer, -1)
+                cv2.ellipse(self.overlay, state.pointer, (30, 30), 0, 0, del_t / 0.4 * 360, state.Theme.pointer, -1)
 
         if self.type == "s":
             self.size = int(round(pythagorean_distance(state.aoe_position[0], state.aoe_position[1],
                                            state.pointer[0], state.pointer[1]) * state.fcal / 5, -0) * 5)
-            cv2.circle(state.overlay, state.aoe_position, int(self.size/state.fcal), state.Theme.active, 5)
-            cv2.putText(state.overlay, str(self.size) + "ft",
+            cv2.circle(self.overlay, state.aoe_position, int(self.size/state.fcal), state.Theme.active, 5)
+            cv2.putText(self.overlay, str(self.size) + "ft",
                         [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "c" and not self.floating:
             if self.resizing:
                 self.points = self.generate_cone(self.aoe_start, state.pointer)
                 end = state.pointer
-            cv2.polylines(state.overlay, np.int32([self.points]), True, state.Theme.active, 5)
+            cv2.polylines(self.overlay, np.int32([self.points]), True, state.Theme.active, 5)
             size = round((10 + pythagorean_distance(
                 self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal / 5,-0) * 5
 
-            cv2.putText(state.overlay, str(size) + "ft", 
+            cv2.putText(self.overlay, str(size) + "ft",
                         [state.aoe_position[0] + 80, state.aoe_position[1] + 80], 
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "r" and not self.floating:
@@ -220,20 +236,20 @@ class aoe_manager:
             size = round(
                 (10 + pythagorean_distance(self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal / 5,
                 -0) * 5
-            cv2.polylines(state.overlay, np.int32([self.points]), True, state.Theme.active, 5)
-            cv2.putText(state.overlay, str(size) + "ft",
+            cv2.polylines(self.overlay, np.int32([self.points]), True, state.Theme.active, 5)
+            cv2.putText(self.overlay, str(size) + "ft",
                         [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "l" and self.aoe_start != (0, 0):
             if self.resizing:
                 end = self.generate_line(self.aoe_start, state.pointer)
-            cv2.line(state.overlay, self.aoe_start, end, state.Theme.active, 10)
+            cv2.line(self.overlay, self.aoe_start, end, state.Theme.active, 10)
             size = round(
                 (10 + pythagorean_distance(self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal,
                 -1)
-            cv2.putText(state.overlay, str(size) + "ft", [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
+            cv2.putText(self.overlay, str(size) + "ft", [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-        cv2.circle(state.overlay, state.pointer, 10, state.Theme.pointer, -1)
+        cv2.circle(self.overlay, state.pointer, 10, state.Theme.pointer, -1)
         if self.type == "p":
             if self.resizing:
                 if self.path is None:
@@ -250,25 +266,26 @@ class pathing:
     measure the distance of an arbitrary path"""
     def __init__(self, cv2_obj, start):
         self.cv2_obj = cv2_obj
-        self.path = [start]
+        self.path = [np.array(start, dtype=np.int32)]
         self.dist = 0
 
     def add_point(self, point):
-        # I would prefer this function to strictly allow only 5 ft steps, but
-        # did not make it work yet
-        if pythagorean_distance(self.path[-1][0], self.path[-1][1],
-                                point[0], point[1])*state.fcal > 5:
-            self.path.append(point)
-            self.dist += round(pythagorean_distance(self.path[-2][0], self.path[-2][1],
-                                          self.path[-1][0], self.path[-1][1])*state.fcal)
+        """adds points to the pathing object, strictly in 5 foot steps
+        """
+        point = np.array(point, dtype=np.int32)
+        dist = norm(point-self.path[-1]) * state.fcal
+        if dist >= 5:
+            gen_point = np.round(self.path[-1] + (point - self.path[-1])/dist * 5)
+            self.path.append(np.array(gen_point, dtype=np.int32))
+            self.dist += round(norm(self.path[-2]-self.path[-1])*state.fcal)
 
     def draw(self, active):
         if active:
             color = state.Theme.active
         elif not active:
             color = state.Theme.passive
-        self.cv2_obj.polylines(state.overlay, np.int32([self.path]), False, color, 5)
-        self.cv2_obj.putText(state.overlay, str(self.dist) + "ft", self.path[-1], cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
+        self.cv2_obj.polylines(aoe_man.overlay, np.int32([self.path]), False, color, 5)
+        self.cv2_obj.putText(aoe_man.overlay, str(self.dist) + "ft", self.path[-1], cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
 
 
 
