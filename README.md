@@ -13,6 +13,7 @@ The DM, using the PC running the Software can interface with the software using 
 | c   | Cone   |
 | l   | line   |
 | p   | pathing |
+| m   | move effect |
 | n   | next map |
 | q   | quit |
 
