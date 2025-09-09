@@ -68,8 +68,7 @@ class aoe_manager:
             vect = self.effects[self.to_move][2] - self.effects[self.to_move][1]
             self.effects[self.to_move][1] = state.pointer
             if self.effects[self.to_move][0] != "s":
-                print()
-                #self.effects[self.to_move][2] = state.pointer + vect
+                self.effects[self.to_move][2] = state.pointer + vect
         if not grab and self.floating:
             self.active = False
             self.once = False
