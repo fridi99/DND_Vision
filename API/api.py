@@ -58,6 +58,11 @@ def delete_nearest():
     aoe_man.floating = True
     aoe_man.active = True
 
+@app.post("/move_effect")
+def move():
+    aoe_man.type = "m"
+    aoe_man.active = True
+
 @app.post("/escape")
 def escape():
     if aoe_man.active:
@@ -65,6 +70,7 @@ def escape():
         aoe_man.active = False
     else:
         aoe_man.quit = True
+
 
 
 @app.post("/nextmap")

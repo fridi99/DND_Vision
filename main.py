@@ -3,7 +3,7 @@
 # DONE 4: line length restriction
 # DONE 5: cone
 # DONE 6: forced pathing to snap to 5 feet steps
-# TODO 8: moving
+# DONE 8: moving
 # DONE 9: deleting
 # TODO 10: make choosing a size easier and more reliable
 # DONE 10: hand orientation consideration, keep effects of hand
