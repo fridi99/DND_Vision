@@ -270,12 +270,10 @@ class pathing:
         self.dist = 0
 
     def add_point(self, point):
-        # I would prefer this function to strictly allow only 5 ft steps, but
-        # did not make it work yet
+        """adds points to the pathing object, strictly in 5 foot steps
+        """
         point = np.array(point, dtype=np.int32)
         dist = norm(point-self.path[-1]) * state.fcal
-        print(point, self.path[-1])
-        print(dist)
         if dist >= 5:
             gen_point = np.round(self.path[-1] + (point - self.path[-1])/dist * 5)
             self.path.append(np.array(gen_point, dtype=np.int32))
