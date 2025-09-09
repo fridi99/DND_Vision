@@ -21,7 +21,6 @@ import API.api as api
 from Effects.effects import aoe_man
 
 
-tracker = tracker()
 aoe_man.assign_cv2(cv2)
 keyman = keymanager(tracker)
 if state.api_active:

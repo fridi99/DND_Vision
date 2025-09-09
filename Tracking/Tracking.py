@@ -51,7 +51,13 @@ class tracker:
         :param i: index of map to be opened, defaults to zero
         :return: relevant data of the map opened,
         """
-        self.battle_map = cv2.imread("./maps//" + os.listdir("maps")[self.map_index])
+
+        try:
+            self.battle_map = cv2.imread("./maps//" + os.listdir("maps")[self.map_index])
+        except FileNotFoundError:
+            print("Directory was not found. If testing only the API file, this is normal")
+            print("Will return True")
+            return True
         if self.battle_map is None:
             path = ask_for_file()
             self.battle_map = cv2.imread(path)
@@ -145,5 +151,7 @@ class tracker:
         cv2.imshow("Battlemap", aoe_man.overlay)
         cv2.imshow("Camera", frame)
         cv2.namedWindow("Battlemap", cv2.WINDOW_NORMAL)
-        #cv2.moveWindow('Battlemap', self.scr_w, 0)
+        cv2.moveWindow('Battlemap', self.scr_w, 0)
         cv2.setWindowProperty("Battlemap", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+tracker = tracker()
