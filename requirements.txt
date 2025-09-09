@@ -1,0 +1,11 @@
+opencv-python~=4.11.0.86
+uvicorn~=0.33.0
+fastapi~=0.116.1
+pydantic~=2.10.6
+pip~=20.2.3
+attrs~=25.1.0
+numpy~=1.24.4
+screeninfo~=0.8.1
+future~=1.0.0
+mediapipe~=0.10.11
+opencv-python~=4.11

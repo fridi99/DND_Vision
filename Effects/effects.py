@@ -3,6 +3,7 @@ import math
 from math import cos, sin, tan, sqrt
 from math import radians as rad
 from Logic.Logic import pythagorean_distance
+from numpy.linalg import norm
 import numpy as np
 import cv2
 import time
@@ -265,17 +266,20 @@ class pathing:
     measure the distance of an arbitrary path"""
     def __init__(self, cv2_obj, start):
         self.cv2_obj = cv2_obj
-        self.path = [start]
+        self.path = [np.array(start, dtype=np.int32)]
         self.dist = 0
 
     def add_point(self, point):
         # I would prefer this function to strictly allow only 5 ft steps, but
         # did not make it work yet
-        if pythagorean_distance(self.path[-1][0], self.path[-1][1],
-                                point[0], point[1])*state.fcal > 5:
-            self.path.append(point)
-            self.dist += round(pythagorean_distance(self.path[-2][0], self.path[-2][1],
-                                          self.path[-1][0], self.path[-1][1])*state.fcal)
+        point = np.array(point, dtype=np.int32)
+        dist = norm(point-self.path[-1]) * state.fcal
+        print(point, self.path[-1])
+        print(dist)
+        if dist >= 5:
+            gen_point = np.round(self.path[-1] + (point - self.path[-1])/dist * 5)
+            self.path.append(np.array(gen_point, dtype=np.int32))
+            self.dist += round(norm(self.path[-2]-self.path[-1])*state.fcal)
 
     def draw(self, active):
         if active:
