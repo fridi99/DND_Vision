@@ -10,6 +10,19 @@ from Effects.effects import aoe_man
 
 app = FastAPI()
 
+#_______________________________________________________________________________________________
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pathlib import Path
+static_dir = Path(__file__).parent.parent / "static"
+print("[DEBUG] static_dir =", static_dir)
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+@app.get("/effects")
+def effects_demo():
+    return FileResponse(static_dir / "effects_demo.html")
+#_______________________________________________________________________________________________
 
 class Effect(BaseModel):
     type: str
