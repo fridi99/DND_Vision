@@ -4,9 +4,11 @@ import uvicorn
 import threading
 import os
 
-from Logic.Logic import calibration
 from app.Appdata import Appdata as state
 from Effects.effects import aoe_man
+if __name__ != "__main__":
+    from Tracking.Tracking import tracker
+
 
 app = FastAPI()
 
@@ -67,22 +69,24 @@ def escape():
 
 @app.post("/nextmap")
 def nextmap(effect: Effect):
-    if (len(os.listdir("maps")) != 1):
-        if (len(os.listdir("maps")) <= state.map_index + 1):
-            state.map_index = 0
-        else:
-            state.map_index += 1
-        open_map(state.map_index)
+    if __name__ != "__main__":
+        if (len(os.listdir("maps")) != 1):
+            if (len(os.listdir("maps")) <= tracker.map_index + 1):
+                tracker.map_index = 0
+            else:
+                tracker.map_index += 1
+            tracker.open_map()
     return {"status": "ok"}
 
 
-def run_server():
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+def run_server(host_ip):
+    uvicorn.run(app, host=host_ip, port=8000)
 
 def start_server():
-    server_thread = threading.Thread(target=run_server)
+    server_thread = threading.Thread(target=run_server("127.0.0.1"))
     server_thread.daemon = True
     server_thread.start()
 
 if __name__ == "__main__":
-    run_server()
+    os.chdir("..")
+    run_server("0.0.0.0")

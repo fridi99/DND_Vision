@@ -13,6 +13,7 @@ class tracker:
     This class handles hand tracking and also draws the battlemap, because that is such simple code.
 
     """
+    grab = False
     map_index = 0
     initiert: bool = False
     def __init__(self):
@@ -50,7 +51,13 @@ class tracker:
         :param i: index of map to be opened, defaults to zero
         :return: relevant data of the map opened,
         """
-        self.battle_map = cv2.imread("./maps//" + os.listdir("maps")[self.map_index])
+
+        try:
+            self.battle_map = cv2.imread("./maps//" + os.listdir("maps")[self.map_index])
+        except FileNotFoundError:
+            print("Directory was not found. If testing only the API file, this is normal")
+            print("Will return True")
+            return True
         if self.battle_map is None:
             path = ask_for_file()
             self.battle_map = cv2.imread(path)
@@ -127,8 +134,10 @@ class tracker:
                                     (200, 50) ,cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
 
                 if aoe_man.active:
-                    grab = self.grabbing(index_finger, thumb_tip)
-                    self.end = aoe_man.shape_creator(grab, self.end)
+                    self.grab = self.grabbing(index_finger, thumb_tip)
+            if aoe_man.active and self.initiert:
+                self.end = aoe_man.shape_creator(self.grab, self.end)
+
         self.draw(frame)
 
     def draw(self, frame):
@@ -142,5 +151,7 @@ class tracker:
         cv2.imshow("Battlemap", aoe_man.overlay)
         cv2.imshow("Camera", frame)
         cv2.namedWindow("Battlemap", cv2.WINDOW_NORMAL)
-        #cv2.moveWindow('Battlemap', self.scr_w, 0)
+        cv2.moveWindow('Battlemap', self.scr_w, 0)
         cv2.setWindowProperty("Battlemap", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+tracker = tracker()

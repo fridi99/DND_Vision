@@ -1,8 +1,11 @@
 # Use official Python base image
-FROM python:3.8
+FROM python:3.9
+
+ENV PYTHONUNBUFFERED=1
+
 
 # Set working directory inside container
-WORKDIR /
+WORKDIR /app
 
 # Copy requirements first (for better caching)
 COPY requirements.txt ./
@@ -19,14 +22,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy all project files into container
-COPY main.py ./main.py
-COPY API ./API
-COPY app ./app
-COPY Effects ./Effects
-COPY Logic ./Logic
-COPY maps ./maps
-COPY Tracking ./Tracking
-COPY UI ./UI
+
+COPY . .
+
 
 # Run your app
-CMD ["python", "API/api.py"]
+CMD ["python", "-m" , "API.api"]
