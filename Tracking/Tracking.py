@@ -13,6 +13,7 @@ class tracker:
     This class handles hand tracking and also draws the battlemap, because that is such simple code.
 
     """
+    grab = False
     map_index = 0
     initiert: bool = False
     def __init__(self):
@@ -127,8 +128,10 @@ class tracker:
                                     (200, 50) ,cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
 
                 if aoe_man.active:
-                    grab = self.grabbing(index_finger, thumb_tip)
-                    self.end = aoe_man.shape_creator(grab, self.end)
+                    self.grab = self.grabbing(index_finger, thumb_tip)
+            if aoe_man.active and self.initiert:
+                self.end = aoe_man.shape_creator(self.grab, self.end)
+
         self.draw(frame)
 
     def draw(self, frame):
