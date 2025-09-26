@@ -94,6 +94,11 @@ class tracker:
         return True
 
     def track(self):
+        """
+        This function tracks the users hand, dampens the movement and draws the
+        battlemap with effects
+        :return: bool, True for succesful tracking, False for unsuccesful tracking
+        """
         if aoe_man.type == "m":
             if len(aoe_man.effects) == 0:
                 print("No effects to move!")

@@ -46,6 +46,11 @@ class aoe_manager:
         self.quit = False
 
     def activate_type(self, type):
+        """
+        This function activates the aoe_manager and sets it to place an effect
+        :param type: a one letter string determining the effect to be added
+        :return:
+        """
         self.reset()
         allowlist = ["s", "c", "r", "l", "p"] # will reject other types
         if type not in allowlist:
@@ -55,6 +60,7 @@ class aoe_manager:
         self.active = True
         self.aoe_start = np.array([0, 0], dtype=np.int32)
     to_move = 0
+
     def move(self, grab):
         if len(self.effects) == 0:
             print("No effects to move!")
@@ -135,6 +141,7 @@ class aoe_manager:
                 least = dist
         self.effects.remove(to_del)
         return True
+
     def delete_last(self):
         if len(self.effects) == 0:
             return False
@@ -320,8 +327,5 @@ class pathing:
             color = state.Theme.passive
         self.cv2_obj.polylines(aoe_man.overlay, np.int32([self.path]), False, color, 5)
         self.cv2_obj.putText(aoe_man.overlay, str(self.dist) + "ft", self.path[-1], cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-
-
-
 
 aoe_man = aoe_manager()
