@@ -15,8 +15,8 @@ class Theme():
 class Appdata():
     # flags:
     dev_mode: bool = False # shows additional information, like hand landmarks
-    api_active: bool = False # if the api should be launched or not
-    show_stats: bool = True # adds stats like detection confidence
+    api_active: bool = True # if the api should be launched or not
+    show_stats: bool = False # adds stats like detection confidence
 
 
     # variable initialization
