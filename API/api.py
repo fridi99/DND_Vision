@@ -89,4 +89,4 @@ def start_server():
 
 if __name__ == "__main__":
     os.chdir("..")
-    run_server("0.0.0.0")
+    run_server("127.0.0.1")
