@@ -71,8 +71,10 @@ class aoe_manager:
             least = 999_999
             for ite, eff in enumerate(self.effects):
                 if not isinstance(eff[1], pathing):
+                    pos = eff[1]
                     dist = norm(state.pointer - eff[1])
                 else:
+                    pos = eff[1].path[0]
                     dist = norm(state.pointer - eff[1].path[0])
                 if dist < least:
                     self.to_move = ite
@@ -85,10 +87,13 @@ class aoe_manager:
                 return False
 
         if grab and self.floating:
-            vect = self.effects[self.to_move][2] - self.effects[self.to_move][1]
-            self.effects[self.to_move][1] = state.pointer
-            if self.effects[self.to_move][0] != "s":
-                self.effects[self.to_move][2] = state.pointer + vect
+            if self.effects[self.to_move][0] != "p":
+                vect = self.effects[self.to_move][2] - self.effects[self.to_move][1]
+                self.effects[self.to_move][1] = state.pointer
+                if self.effects[self.to_move][0] != "s":
+                    self.effects[self.to_move][2] = state.pointer + vect
+            else:
+                self.effects[self.to_move][1].move(state.pointer)
         if not grab and self.floating:
             self.active = False
             self.once = False
@@ -330,5 +335,9 @@ class pathing:
             color = state.Theme.passive
         self.cv2_obj.polylines(aoe_man.overlay, np.int32([self.path]), False, color, 5)
         self.cv2_obj.putText(aoe_man.overlay, str(self.dist) + "ft", self.path[-1], cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
+
+    def move(self, vect):
+        for i in self.path:
+            i = i + vect
 
 aoe_man = aoe_manager()
