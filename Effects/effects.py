@@ -70,7 +70,10 @@ class aoe_manager:
         if not self.floating and grab:
             least = 999_999
             for ite, eff in enumerate(self.effects):
-                dist = norm(state.pointer - eff[1])
+                if not isinstance(eff[1], pathing):
+                    dist = norm(state.pointer - eff[1])
+                else:
+                    dist = norm(state.pointer - eff[1].path[0])
                 if dist < least:
                     self.to_move = ite
                     least = dist

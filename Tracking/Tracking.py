@@ -28,6 +28,10 @@ class tracker:
                                          min_tracking_confidence=0.6, max_num_hands=1)
         self.mp_drawing = mp.solutions.drawing_utils
         self.end = (0,0)
+        """if state.recording:
+            self.fourcc = cv2.VideoWriter_fourcc(*'avc1')
+            self.out = cv2.VideoWriter('output.avi', self.fourcc, 20.0, (640, 480))
+            """
 
     def grabbing(self, ind_tip, thum_tip):
         """
@@ -116,7 +120,7 @@ class tracker:
                                                 beta=state.Theme.blowout[1])
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
-                    self.initiert = True;
+                    self.initiert = True
                     # Get index finger tip (landmark 8) position
                     index_finger = hand_landmarks.landmark[8]  # index finger tip
                     thumb_tip = hand_landmarks.landmark[4]  # thumb tip
@@ -149,8 +153,6 @@ class tracker:
                         aoe_man.move(self.grab)
                     else:
                         self.end = aoe_man.shape_creator(self.grab, self.end)
-
-
 
         self.draw(frame)
 
