@@ -21,10 +21,11 @@ class aoe_manager:
     resizing = False
     size = 0
     points = None
-    aoe_start = (0,0)
+    aoe_start = np.array([0, 0], dtype=np.int32)
     floating = False
     quit = False
     overlay = None
+    aoe_position = np.array([500, 500], dtype=np.int32)
 
 
     def __init__(self):
@@ -40,11 +41,16 @@ class aoe_manager:
         self.resizing = False
         self.size = 0
         self.points = None
-        self.aoe_start = (0, 0)
+        self.aoe_start = np.array([0, 0], dtype=np.int32)
         self.floating = False
         self.quit = False
 
     def activate_type(self, type):
+        """
+        This function activates the aoe_manager and sets it to place an effect
+        :param type: a one letter string determining the effect to be added
+        :return:
+        """
         self.reset()
         allowlist = ["s", "c", "r", "l", "p"] # will reject other types
         if type not in allowlist:
@@ -52,7 +58,50 @@ class aoe_manager:
         self.type = type
         self.floating = True
         self.active = True
-        self.aoe_start = (0, 0)
+        self.aoe_start = np.array([0, 0], dtype=np.int32)
+    to_move = 0
+
+    def move(self, grab):
+        if len(self.effects) == 0:
+            print("No effects to move!")
+            self.active = False
+            self.type = ""
+            return False
+        if not self.floating and grab:
+            least = 999_999
+            for ite, eff in enumerate(self.effects):
+                if not isinstance(eff[1], pathing):
+                    pos = eff[1]
+                    dist = norm(state.pointer - eff[1])
+                else:
+                    pos = eff[1].path[0]
+                    dist = norm(state.pointer - eff[1].path[0])
+                if dist < least:
+                    self.to_move = ite
+                    least = dist
+            self.floating = True
+            if least == 999_999:
+                self.active = False
+                self.type = ""
+                print("No movable effect! Path objects can not be moved")
+                return False
+
+        if grab and self.floating:
+            if self.effects[self.to_move][0] != "p":
+                vect = self.effects[self.to_move][2] - self.effects[self.to_move][1]
+                self.effects[self.to_move][1] = state.pointer
+                if self.effects[self.to_move][0] != "s":
+                    self.effects[self.to_move][2] = state.pointer + vect
+            else:
+                self.effects[self.to_move][1].move(state.pointer)
+        if not grab and self.floating:
+            self.active = False
+            self.once = False
+            self.floating = False
+            self.type = ""
+        cv2.circle(self.overlay, state.pointer, 10, state.Theme.pointer, -1)
+
+
 
     def assign_cv2(self, cv2_obj):
         """to prevent circular import the cv2 object is set using this function"""
@@ -95,11 +144,12 @@ class aoe_manager:
             return False
         for eff in self.effects:
             dist = pythagorean_distance(pos[0], pos[1], eff[1][0], eff[1][1])
-            if dist < least:
+            if dist < least and eff[0] != "p":
                 to_del = eff
                 least = dist
         self.effects.remove(to_del)
         return True
+
     def delete_last(self):
         if len(self.effects) == 0:
             return False
@@ -171,7 +221,7 @@ class aoe_manager:
             if del_t > 0.4:
                 self.floating = False
                 self.time_set = False
-                self.aoe_start = state.aoe_position
+                self.aoe_start = self.aoe_position
                 if self.type == "d":
                     aoe_man.delete_nearest(state.pointer)
                     self.type = ""
@@ -179,12 +229,11 @@ class aoe_manager:
 
             elif self.floating:
                 cv2.ellipse(self.overlay, state.pointer, (30, 30), 0, 0, del_t / 0.4 * 360, state.Theme.pointer, -1)
-            state.aoe_size = int(round((10 + pythagorean_distance(int(state.pointer[0]), int(state.pointer[1]), 
-                                                                  state.aoe_position[0], state.aoe_position[1]) / 2) / 5
+            self.aoe_size = int(round((10 + norm(state.pointer - self.aoe_position) / 2) / 5
                                        ,-1) * 5 * state.fcal)
 
         elif self.floating:
-            state.aoe_position = state.pointer
+            self.aoe_position = state.pointer
             self.time_set = False
         elif self.active:
             self.resizing = False
@@ -196,13 +245,13 @@ class aoe_manager:
                 self.floating = False
                 self.time_set2 = False
                 if self.type == "s":
-                    aoe_man.add_effect((self.type, state.aoe_position, int(self.size/state.fcal)))
+                    aoe_man.add_effect([self.type, self.aoe_position, int(self.size/state.fcal)])
                 if self.type == "l":
-                    aoe_man.add_effect((self.type, self.aoe_start, end))
+                    aoe_man.add_effect([self.type, self.aoe_start, end])
                 if self.type == "c":
-                    aoe_man.add_effect((self.type, self.aoe_start, end))
+                    aoe_man.add_effect([self.type, self.aoe_start, end])
                 if self.type == "r":
-                    aoe_man.add_effect((self.type, self.aoe_start, end))
+                    aoe_man.add_effect([self.type, self.aoe_start, end])
                 if self.type == "p":
                     aoe_man.add_effect((self.type, self.path))
                     self.path = None
@@ -212,11 +261,11 @@ class aoe_manager:
                 cv2.ellipse(self.overlay, state.pointer, (30, 30), 0, 0, del_t / 0.4 * 360, state.Theme.pointer, -1)
 
         if self.type == "s":
-            self.size = int(round(pythagorean_distance(state.aoe_position[0], state.aoe_position[1],
-                                           state.pointer[0], state.pointer[1]) * state.fcal / 5, -0) * 5)
-            cv2.circle(self.overlay, state.aoe_position, int(self.size/state.fcal), state.Theme.active, 5)
+
+            self.size = int(round(norm(self.aoe_position - state.pointer) * state.fcal / 5, -0) * 5)
+            cv2.circle(self.overlay, self.aoe_position, int(self.size/state.fcal), state.Theme.active, 5)
             cv2.putText(self.overlay, str(self.size) + "ft",
-                        [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
+                        [self.aoe_position[0] + 80, self.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "c" and not self.floating:
             if self.resizing:
@@ -227,7 +276,7 @@ class aoe_manager:
                 self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal / 5,-0) * 5
 
             cv2.putText(self.overlay, str(size) + "ft",
-                        [state.aoe_position[0] + 80, state.aoe_position[1] + 80], 
+                        [self.aoe_position[0] + 80, self.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         if self.type == "r" and not self.floating:
             if self.resizing:
@@ -238,16 +287,16 @@ class aoe_manager:
                 -0) * 5
             cv2.polylines(self.overlay, np.int32([self.points]), True, state.Theme.active, 5)
             cv2.putText(self.overlay, str(size) + "ft",
-                        [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
+                        [self.aoe_position[0] + 80, self.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
-        if self.type == "l" and self.aoe_start != (0, 0):
+        if self.type == "l" and not np.all(self.aoe_start == 0):
             if self.resizing:
                 end = self.generate_line(self.aoe_start, state.pointer)
             cv2.line(self.overlay, self.aoe_start, end, state.Theme.active, 10)
             size = round(
                 (10 + pythagorean_distance(self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal,
                 -1)
-            cv2.putText(self.overlay, str(size) + "ft", [state.aoe_position[0] + 80, state.aoe_position[1] + 80],
+            cv2.putText(self.overlay, str(size) + "ft", [self.aoe_position[0] + 80, self.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
         cv2.circle(self.overlay, state.pointer, 10, state.Theme.pointer, -1)
         if self.type == "p":
@@ -287,7 +336,8 @@ class pathing:
         self.cv2_obj.polylines(aoe_man.overlay, np.int32([self.path]), False, color, 5)
         self.cv2_obj.putText(aoe_man.overlay, str(self.dist) + "ft", self.path[-1], cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
 
-
-
+    def move(self, vect):
+        for i in self.path:
+            i = i + vect
 
 aoe_man = aoe_manager()

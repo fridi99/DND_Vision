@@ -70,3 +70,6 @@ class keymanager:
                 else:
                     self.track.map_index += 1
                 self.track.open_map()
+        if key == ord("m"):
+            aoe_man.active = True
+            aoe_man.type = "m"
