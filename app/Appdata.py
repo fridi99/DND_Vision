@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import numpy as np
+import json
 
 class Theme():
     """This class provides color values and similar to determine apperance of
@@ -13,6 +14,10 @@ class Theme():
 
 @dataclass
 class Appdata():
+    def __init__(self):
+        with open('config.json') as f:
+            d = json.load(f)
+            print(d)
     # flags:
     dev_mode: bool = False # shows additional information, like hand landmarks
     api_active: bool = False # if the api should be launched or not

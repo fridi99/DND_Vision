@@ -337,7 +337,8 @@ class pathing:
         self.cv2_obj.putText(aoe_man.overlay, str(self.dist) + "ft", self.path[-1], cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
 
     def move(self, vect):
-        for i in self.path:
-            i = i + vect
+        dif = self.path[0] - vect
+        for ite, i in enumerate(self.path):
+            self.path[ite] = i - dif
 
 aoe_man = aoe_manager()
