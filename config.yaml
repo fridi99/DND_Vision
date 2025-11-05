@@ -1,0 +1,30 @@
+Theme:
+  active:
+  - 100
+  - 100
+  - 100
+  blowout:
+  - 0.15
+  - 100
+  passive:
+  - 200
+  - 100
+  - 200
+  pathing:
+  - 100
+  - 0
+  - 100
+  pointer:
+  - 50
+  - 150
+  - 0
+  text:
+  - 200
+  - 200
+  - 200
+app:
+  api_active: false
+  cal_ratio: 1
+  dev_mode: false
+  fcal: 0.0795
+  show_stats: false
