@@ -13,6 +13,7 @@ if __name__ != "__main__":
 app = FastAPI()
 
 #_______________________________________________________________________________________________
+"""
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
@@ -24,6 +25,7 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 @app.get("/effects")
 def effects_demo():
     return FileResponse(static_dir / "effects_demo.html")
+"""
 #_______________________________________________________________________________________________
 
 class Effect(BaseModel):
@@ -58,6 +60,11 @@ def delete_nearest():
     aoe_man.floating = True
     aoe_man.active = True
 
+@app.post("/move_effect")
+def move():
+    aoe_man.type = "m"
+    aoe_man.active = True
+
 @app.post("/escape")
 def escape():
     if aoe_man.active:
@@ -65,6 +72,7 @@ def escape():
         aoe_man.active = False
     else:
         aoe_man.quit = True
+
 
 
 @app.post("/nextmap")
@@ -83,7 +91,7 @@ def run_server(host_ip):
     uvicorn.run(app, host=host_ip, port=8000)
 
 def start_server():
-    server_thread = threading.Thread(target=run_server("127.0.0.1"))
+    server_thread = threading.Thread(target=run_server, args=("127.0.0.1", ))
     server_thread.daemon = True
     server_thread.start()
 

@@ -28,6 +28,10 @@ class tracker:
                                          min_tracking_confidence=0.6, max_num_hands=1)
         self.mp_drawing = mp.solutions.drawing_utils
         self.end = (0,0)
+        """if state.recording:
+            self.fourcc = cv2.VideoWriter_fourcc(*'avc1')
+            self.out = cv2.VideoWriter('output.avi', self.fourcc, 20.0, (640, 480))
+            """
 
     def grabbing(self, ind_tip, thum_tip):
         """
@@ -94,6 +98,17 @@ class tracker:
         return True
 
     def track(self):
+        """
+        This function tracks the users hand, dampens the movement and draws the
+        battlemap with effects
+        :return: bool, True for succesful tracking, False for unsuccesful tracking
+        """
+        if aoe_man.type == "m":
+            if len(aoe_man.effects) == 0:
+                print("No effects to move!")
+                aoe_man.active = False
+                aoe_man.type = ""
+                return False
         ret, frame = self.cap.read()
         cam_h, cam_w, _ = frame.shape
         frame = frame[int(cam_h*(1/2 - state.cal_ratio/4)):int(cam_h*(1/2 + state.cal_ratio/4)),
@@ -105,7 +120,7 @@ class tracker:
                                                 beta=state.Theme.blowout[1])
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
-                    self.initiert = True;
+                    self.initiert = True
                     # Get index finger tip (landmark 8) position
                     index_finger = hand_landmarks.landmark[8]  # index finger tip
                     thumb_tip = hand_landmarks.landmark[4]  # thumb tip
@@ -114,19 +129,17 @@ class tracker:
 
 
             if self.initiert and results.multi_hand_landmarks:  # should only run if a complete hand is detected, does not always work however
-                index_x, index_y = int(index_finger.x * cam_w * 1.25/state.cal_ratio - 120), int(index_finger.y * cam_h * 1.25/state.cal_ratio - 150)
-                thumb_x, thumb_y = int(thumb_tip.x * cam_w/state.cal_ratio * 1.25 - 120), int(thumb_tip.y * cam_h/state.cal_ratio * 1.25 - 150)
-                ref_point = [int((ref_point_lm[0].x + ref_point_lm[1].x) * cam_w/(2*state.cal_ratio) * 1.25 - 120),
-                             int((ref_point_lm[0].y + ref_point_lm[1].y) * cam_h/(2*state.cal_ratio) * 1.25 - 150)]
-                state.pointer = [int(((index_x + thumb_x * 2) / 3 + ((index_x + thumb_x * 2) / 3 - ref_point[0]) +
-                                      state.pointer[0] * 6) / 7),
-                                 int(((index_y + thumb_y * 2) / 3 + ((index_y + thumb_y * 2) / 3 - ref_point[1]) +
-                                      state.pointer[1] * 6) / 7)]
+                index = np.array([index_finger.x * cam_w * 1.25/state.cal_ratio - 120, index_finger.y * cam_h * 1.25/state.cal_ratio - 150], dtype=np.int32)
+                thumb = np.array([thumb_tip.x * cam_w/state.cal_ratio * 1.25 - 120, thumb_tip.y * cam_h/state.cal_ratio * 1.25 - 150], dtype=np.int32)
+                ref_point = np.array([int((ref_point_lm[0].x + ref_point_lm[1].x) * cam_w/(2*state.cal_ratio) * 1.25 - 120),
+                             int((ref_point_lm[0].y + ref_point_lm[1].y) * cam_h/(2*state.cal_ratio) * 1.25 - 150)], dtype=np.int32)
+                state.pointer = np.array(((2*(index + thumb * 2)/3 - ref_point) + state.pointer * 6) / 7).astype(int)
+
                 if state.dev_mode:
                     self.mp_drawing.draw_landmarks(aoe_man.overlay, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
-                    cv2.circle(aoe_man.overlay, [index_x, index_y], 10, (200, 0, 0), -1)
+                    cv2.circle(aoe_man.overlay, index, 10, (200, 0, 0), -1)
                     cv2.circle(aoe_man.overlay, ref_point, 10, (0, 30, 200), -1)
-                    cv2.circle(aoe_man.overlay, [thumb_x, thumb_y], 10, (200, 0, 0), -1)
+                    cv2.circle(aoe_man.overlay, thumb, 10, (200, 0, 0), -1)
                 if results.multi_handedness and state.show_stats:
                     for handedness in results.multi_handedness:
                         classification = handedness.classification[0]
@@ -135,8 +148,11 @@ class tracker:
 
                 if aoe_man.active:
                     self.grab = self.grabbing(index_finger, thumb_tip)
-            if aoe_man.active and self.initiert:
-                self.end = aoe_man.shape_creator(self.grab, self.end)
+                    if aoe_man.type == "m":
+
+                        aoe_man.move(self.grab)
+                    else:
+                        self.end = aoe_man.shape_creator(self.grab, self.end)
 
         self.draw(frame)
 

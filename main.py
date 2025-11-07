@@ -3,24 +3,23 @@
 # DONE 4: line length restriction
 # DONE 5: cone
 # DONE 6: forced pathing to snap to 5 feet steps
-# TODO 8: moving
+# DONE 8: moving
 # DONE 9: deleting
 # TODO 10: make choosing a size easier and more reliable
+# TODO 11: fix refreshing after effect placement
 # DONE 10: hand orientation consideration, keep effects of hand
 # BUGFIX 1: hand disappearance makes circle stay; improved, testing in progress
 # BUGFIX 2: properly cleanup pointer and the like after placing effect
 
 
 from UI.UI import *
-from Effects.effects import *
-
 from Logic.Logic import *
 from Tracking.Tracking import tracker
-from API.api import app
 import API.api as api
 from Effects.effects import aoe_man
+from app.Appdata import load_config, save_config
 
-
+load_config(state)
 aoe_man.assign_cv2(cv2)
 keyman = keymanager(tracker)
 if state.api_active:
