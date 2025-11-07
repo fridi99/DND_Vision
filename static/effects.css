@@ -91,10 +91,10 @@ button:focus-visible{ outline:none; box-shadow: var(--ring); }
 /* Modal */
 .modal-overlay{
   position:fixed; inset:0; background:rgba(0,0,0,.5);
-  display:none; z-index: var(--overlay-z);
+  display:none; z-index:9999; /*var(--overlay-z);*/
 }
 .modal{
-  position:fixed; inset:0; display:none; z-index: var(--pop-z);
+  position:fixed; inset:0; display:none; z-index: 10000;  /*var(--pop-z);*/
   place-items:center; padding:20px;
 }
 .modal.open, .modal-overlay.open{ display:grid; }
@@ -146,11 +146,18 @@ button:focus-visible{ outline:none; box-shadow: var(--ring); }
 /* Reveal-Layer */
 #reveal{
   position: fixed; inset: 0;
-  background: url('images/characters_background.jpg') center/cover no-repeat fixed; /* unteres Bild */
-  z-index: 0; pointer-events: none;
+  background: url('images/characters_background.jpg') center/cover no-repeat fixed;
+  z-index: 0;
+  pointer-events: none;
 }
+
 #revealCanvas{
   position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  background; transparent;
 }
 /* UI über dem Canvas halten */
-.app, .modal { position: relative; z-index: 1; }
+.app, {
+position: relative;
+z-index: 1;
+}

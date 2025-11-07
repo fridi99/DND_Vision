@@ -8,26 +8,20 @@
   <style>
     /* Canvas klick-durchlässig halten */
     #reveal, #revealCanvas { pointer-events: none; }
-
     /* Toggle-Button oben rechts */
     .reveal-toggle {
-      position: fixed;
-      top: 12px; right: 12px;
-      z-index: 10002;            /* über Card, unter Modal */
+      position: fixed; top: 12px; right: 12px; z-index: 10002;
       border: 1px solid rgba(255,255,255,0.12);
-      background: #161a22;
-      color: #e6e9ef;
-      padding: .55rem .8rem;
-      border-radius: 10px;
+      background: #161a22; color: #e6e9ef;
+      padding: .55rem .8rem; border-radius: 10px; cursor: pointer;
       font: 14px/1 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
-      cursor: pointer;
     }
     .reveal-toggle:hover { border-color: rgba(255,255,255,0.25); }
   </style>
 </head>
 <body>
 
-<!-- Reveal-Layer: unten characters_background (in effects.css), oben das radierbare Bild -->
+<!-- Unteres Bild kommt aus effects.css (#reveal background) -->
 <div id="reveal"><canvas id="revealCanvas"></canvas></div>
 
 <!-- ON/OFF oben rechts -->
@@ -37,19 +31,14 @@
   <div class="card">
     <h2 style="margin:0 0 .4rem">ThemeFX – Effects & API</h2>
     <p class="muted" style="margin:0 0 1rem">
-      Click “Choose Effect” to open a small window. On <strong>hover</strong> you’ll see short explanations.
+      Click “Choose Effect” to open a window.
       API: <code>ThemeFX.apply('blood'|'ice'|'fire')</code>, <code>ThemeFX.clear()</code>.
     </p>
     <div class="row">
       <button id="openFx" class="primary" aria-haspopup="dialog" aria-controls="fxModal">Choose Effect</button>
-      <button id="clearFx">Clear Last</button>
-      <button id="deleteNearestFx">Delete Nearest</button>
-      <button id="escapeFx">Escape</button>
-      <button id="nextMapFx">Next Map</button>
+      <button id="clearFx">Clear</button>
       <span class="muted">Current: <span id="currentFx" class="kbd">none</span></span>
     </div>
-    <div class="spacer"></div>
-    <p class="muted">Tip: Press <span class="kbd">Esc</span> to close the window.</p>
   </div>
 </div>
 
@@ -60,38 +49,31 @@
     <div class="modal-header">
       <div>
         <div id="fxTitle" class="modal-title">Select Effect</div>
-        <div class="muted" style="font-size:12px">Pick a visual style for your theme.</div>
+        <div class="muted" style="font-size:12px">Pick a background style.</div>
       </div>
       <button id="closeFx" aria-label="Close">✕</button>
     </div>
 
     <div class="grid" id="fxGrid" role="listbox" aria-label="Effects">
       <button class="fx-btn" data-fx="blood" role="option" aria-selected="false">
-        <span class="fx-icon">🩸</span>
-        <span class="fx-name">Blood</span>
-        <span class="tooltip">Dark, gritty blood overlay</span>
+        <span class="fx-icon">🩸</span><span class="fx-name">Blood</span>
       </button>
       <button class="fx-btn" data-fx="ice" role="option" aria-selected="false">
-        <span class="fx-icon">❄️</span>
-        <span class="fx-name">Ice</span>
-        <span class="tooltip">Cool icy tint & hatch</span>
+        <span class="fx-icon">❄️</span><span class="fx-name">Ice</span>
       </button>
       <button class="fx-btn" data-fx="fire" role="option" aria-selected="false">
-        <span class="fx-icon">🔥</span>
-        <span class="fx-name">Fire</span>
-        <span class="tooltip">Warm glow from below</span>
+        <span class="fx-icon">🔥</span><span class="fx-name">Fire</span>
       </button>
     </div>
 
-    <div class="spacer"></div>
-    <div class="row" style="justify-content:flex-end">
+    <div class="row" style="justify-content:flex-end; margin-top:12px">
       <button id="saveFx" class="primary">Apply</button>
     </div>
   </div>
 </div>
 
 <script>
-  // ---------- Minimal API ----------
+  // ---------- Minimal API: Body-Klassen für Hintergrundbilder ----------
   (function(){
     const CLASS_MAP = { blood: 'effect-blood', ice: 'effect-ice', fire: 'effect-fire' };
     let current = null;
@@ -130,11 +112,18 @@
   const clearBtn = document.getElementById('clearFx');
   const grid = document.getElementById('fxGrid');
 
-  const FX_TO_TYPE = { blood:"s", ice:"c", fire:"r" };
   let pendingChoice = null;
 
-  function openModal(){ overlay.classList.add('open'); modal.classList.add('open'); pendingChoice = ThemeFX.get(); markActive(pendingChoice); }
-  function closeModal(){ overlay.classList.remove('open'); modal.classList.remove('open'); }
+  function openModal(){
+    overlay.classList.add('open');
+    modal.classList.add('open');
+    pendingChoice = ThemeFX.get();
+    markActive(pendingChoice);
+  }
+  function closeModal(){
+    overlay.classList.remove('open');
+    modal.classList.remove('open');
+  }
 
   openBtn.addEventListener('click', openModal);
   closeBtn.addEventListener('click', closeModal);
@@ -147,36 +136,15 @@
     markActive(pendingChoice);
   });
 
-  saveBtn.addEventListener('click', async () => {
-    if (pendingChoice) {
-      ThemeFX.apply(pendingChoice);
-      const payload = { type: FX_TO_TYPE[pendingChoice] };
-      if (payload.type) {
-        await fetch("/effect", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-      }
-    }
+  saveBtn.addEventListener('click', () => {
+    if (pendingChoice) ThemeFX.apply(pendingChoice);
     closeModal();
   });
 
-  clearBtn.addEventListener('click', async () => {
+  clearBtn.addEventListener('click', () => {
     ThemeFX.clear();
-    await fetch("/deletelast", { method: "POST" });
     pendingChoice = null;
     markActive(null);
-  });
-
-  document.getElementById('deleteNearestFx').addEventListener('click', async () => {
-    await fetch("/deletenearest", { method: "POST" });
-  });
-  document.getElementById('escapeFx').addEventListener('click', async () => {
-    await fetch("/escape", { method: "POST" });
-  });
-  document.getElementById('nextMapFx').addEventListener('click', async () => {
-    await fetch("/nextmap", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
   });
 
   function markActive(name){
@@ -187,16 +155,17 @@
     });
   }
 
-  // ---------- Reveal-on-hover + Toggle ----------
+  // ---------- Reveal-on-hover + Toggle + Reset bei Effektwechsel ----------
   (function(){
     const canvas = document.getElementById('revealCanvas');
     const ctx = canvas.getContext('2d');
 
+    // Oberes Bild pro Effekt (gleich wie Body-Backgrounds)
     const EFFECT_TO_IMG = {
       default: 'images/dragon-background.jpeg',
       blood:   'images/blood_effect.jpg',
       ice:     'images/ice_effect.jpg',
-      fire:    'images/dragon-background.jpeg'
+      fire:    'images/fire_effect.jpg'
     };
 
     const toggleBtn = document.getElementById('toggleReveal');
@@ -208,7 +177,7 @@
     toggleBtn.addEventListener('click', () => {
       revealOn = !revealOn;
       toggleBtn.textContent = `Reveal: ${revealOn ? 'ON' : 'OFF'}`;
-      // nichts neu zeichnen → „eingefrorener“ Zustand bleibt sichtbar
+      // Zustand auf Canvas bleibt bestehen
     });
 
     function fitCanvas(){
@@ -235,7 +204,10 @@
 
     function setTopByEffect(name){
       const src = EFFECT_TO_IMG[name || 'default'];
-      if (src === topSrc){ redrawTop(); return; } // Effekt blieb gleich → Maske zurücksetzen
+      if (src === topSrc){ // gleicher Effekt → Maske zurücksetzen
+        redrawTop();
+        return;
+      }
       topSrc = src;
       topImg.onload = redrawTop;
       topImg.src = src;
@@ -278,9 +250,17 @@
     setTopByEffect(ThemeFX.get());
     fitCanvas();
 
-    // Effektwechsel setzt Top-Bild neu und löscht die Maske
-    window.addEventListener('themefx:applied', e => setTopByEffect(e.detail.effect));
-    window.addEventListener('themefx:cleared',  () => setTopByEffect('default'));
+    // WICHTIG: Bei Effektwechsel Canvas leeren und Top neu deckend zeichnen
+    window.addEventListener('themefx:applied', e => {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      setTopByEffect(e.detail.effect);
+    });
+    window.addEventListener('themefx:cleared', () => {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      setTopByEffect('default');
+    });
   })();
 </script>
 </body>
