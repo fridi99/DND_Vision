@@ -3,6 +3,7 @@ import cv2
 from Effects.effects import *
 from Logic.Logic import *
 from Effects.effects import aoe_man
+import os
 
 class keymanager:
     once = False
@@ -60,8 +61,8 @@ class keymanager:
             aoe_man.delete_last()
         if key == ord("k"):
             # calibrates battlemap using qr code
-            state.cal_ratio = calibration(self.cap)
-            print(state.cal_ratio)
+            state.fcal = calibration(self.cap)
+            save_config({"app":{"fcal": state.fcal}})
         if key == ord("n"):
             # moves to next battlemap
             if (len(os.listdir("maps")) != 1):
