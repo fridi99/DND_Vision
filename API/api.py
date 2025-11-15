@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import uvicorn
 import threading
@@ -11,6 +13,14 @@ if __name__ != "__main__":
 
 
 app = FastAPI()
+
+# TODO: auskommentieren
+#app.mount("/static", StaticFiles(directory="static"), name="static")
+# HTML = Startseite
+#@app.get("/")
+#def index():
+    # Pfad
+    #return FileResponse("static/effects_demo.html")
 
 #_______________________________________________________________________________________________
 """
