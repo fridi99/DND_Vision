@@ -2,12 +2,10 @@ from app.Appdata import Appdata as state
 import math
 from math import cos, sin, tan, sqrt
 from math import radians as rad
-from Logic.Logic import pythagorean_distance
 from numpy.linalg import norm
 import numpy as np
 import cv2
 import time
-
 
 
 class aoe_manager:
@@ -146,7 +144,7 @@ class aoe_manager:
         if len(self.effects) == 0:
             return False
         for eff in self.effects:
-            dist = pythagorean_distance(pos[0], pos[1], eff[1][0], eff[1][1])
+            dist = norm(pos - eff[1])
             if dist < least and eff[0] != "p":
                 to_del = eff
                 least = dist
@@ -167,7 +165,7 @@ class aoe_manager:
         :return: the endpoint as constrained to 10 ft steps
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
-        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) * state.fcal, -1))
+        dist = int(round((10 + norm(start - end)) * state.fcal, -1))
         dist = dist / state.fcal
         point = (int(start[0] + math.sin(ang) * dist), int(start[1] + math.cos(ang) * dist))
         return point
@@ -181,7 +179,7 @@ class aoe_manager:
         :return: three point list
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
-        dist = int(round((10 + pythagorean_distance(start[0], start[1], end[0], end[1])) * state.fcal/5, -0)) * 5
+        dist = int(round((10 + norm(start - end)) * state.fcal/5, -0)) * 5
         dist = dist/state.fcal
         point1 = (int(start[0] + math.sin(ang + rad(30)) * dist), int(start[1] + math.cos(ang + rad(30)) * dist))
         point2 = (int(start[0] + math.sin(ang - rad(30)) * dist), int(start[1] + math.cos(ang - rad(30)) * dist))
@@ -195,7 +193,7 @@ class aoe_manager:
         :return: four point list
         """
         ang = math.atan2(end[0] - start[0], end[1] - start[1])
-        dist = int(round((10+pythagorean_distance(start[0], start[1], end[0], end[1]))* state.fcal/ 5, -0)) * 5
+        dist = int(round((10+norm(start - end))* state.fcal/ 5, -0)) * 5
         dist = dist/state.fcal
         point1 = (int(start[0] + math.sin(ang + rad(90)) * dist / 2),
                   int(start[1] + math.cos(ang + rad(90)) * dist / 2))
@@ -275,8 +273,7 @@ class aoe_manager:
                 self.points = self.generate_cone(self.aoe_start, state.pointer)
                 end = state.pointer
             cv2.polylines(self.overlay, np.int32([self.points]), True, state.Theme.active, 5)
-            size = round((10 + pythagorean_distance(
-                self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal / 5,-0) * 5
+            size = round((10 + norm(self.aoe_start - end)) * state.fcal / 5,-0) * 5
 
             cv2.putText(self.overlay, str(size) + "ft",
                         [self.aoe_position[0] + 80, self.aoe_position[1] + 80],
@@ -286,7 +283,7 @@ class aoe_manager:
                 self.points = self.generate_square(self.aoe_start, state.pointer)
                 end = state.pointer
             size = round(
-                (10 + pythagorean_distance(self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal / 5,
+                (10 + norm(self.aoe_start - end)) * state.fcal / 5,
                 -0) * 5
             cv2.polylines(self.overlay, np.int32([self.points]), True, state.Theme.active, 5)
             cv2.putText(self.overlay, str(size) + "ft",
@@ -297,7 +294,7 @@ class aoe_manager:
                 end = self.generate_line(self.aoe_start, state.pointer)
             cv2.line(self.overlay, self.aoe_start, end, state.Theme.active, 10)
             size = round(
-                (10 + pythagorean_distance(self.aoe_start[0], self.aoe_start[1], end[0], end[1])) * state.fcal,
+                (10 + norm(self.aoe_start - end)) * state.fcal,
                 -1)
             cv2.putText(self.overlay, str(size) + "ft", [self.aoe_position[0] + 80, self.aoe_position[1] + 80],
                         cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)

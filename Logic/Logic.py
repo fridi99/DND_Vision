@@ -10,6 +10,7 @@ from numpy.linalg import norm
 
 def pythagorean_distance(x1, y1, x2, y2):
     """
+    This function should be replaced by numpy.linalg.norm
     Simple pythogerian distance between two points
     :param x1: x value of first point
     :param y1: y value of first point

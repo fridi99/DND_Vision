@@ -18,13 +18,11 @@ from Tracking.Tracking import tracker
 import API.api as api
 from Effects.effects import aoe_man
 from app.Appdata import load_config, save_config
-from Debug_tools.Debug_tools import *
 
 
 load_config(state)
 aoe_man.assign_cv2(cv2)
 keyman = keymanager(tracker)
-dp = debug_point([200, 200], cv2)
 
 if state.api_active:
     api.start_server()
@@ -33,7 +31,6 @@ while tracker.cap.isOpened():
     keyman.process_keypress()
     aoe_man.overlay = tracker.battle_map.copy()
     tracker.track()
-    dp.draw()
 
 tracker.cap.release()
 cv2.destroyAllWindows()

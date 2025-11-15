@@ -4,6 +4,7 @@ import mediapipe as mp
 from UI.UI import *
 from Effects.effects import *
 from Effects.effects import aoe_man
+from Debug_tools.Debug_tools import *
 import os
 
 
@@ -137,6 +138,8 @@ class tracker:
                 state.pointer = np.array(((2*(index + thumb * 2)/3 - ref_point) + state.pointer * 6) / 7).astype(int)
 
                 if state.dev_mode:
+
+                    cv2.putText(aoe_man.overlay, f"{state.pointer[0]}, {state.pointer[1]}", state.pointer, cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
                     self.mp_drawing.draw_landmarks(aoe_man.overlay, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
                     cv2.circle(aoe_man.overlay, index, 10, (200, 0, 0), -1)
                     cv2.circle(aoe_man.overlay, ref_point, 10, (0, 30, 200), -1)

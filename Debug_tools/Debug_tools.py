@@ -11,4 +11,4 @@ class debug_point:
     def draw(self):
         aoe_man.overlay = self.cv2.putText(aoe_man.overlay, f"{self.x}  {self.y}",
         (self.x, self.y), self.cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255))
-        aoe_man.overlay = self.cv2.circle(aoe_man.overlay, (self.x+50, self.y+50), 5, (255, 255, 255), -1)
+        aoe_man.overlay = self.cv2.circle(aoe_man.overlay, (self.x+50, self.y+50), 5, (100, 100, 100), -1)
