@@ -26,5 +26,5 @@ app:
   api_active: false
   cal_ratio: 1
   dev_mode: false
-  fcal: 0.0795
+  fcal: 0.08072931981059034
   show_stats: false
