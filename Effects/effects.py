@@ -113,6 +113,7 @@ class aoe_manager:
         # effect should be: (kind, position, size) or (kind, start, end)
         # The effect may also be the type and a class object, like the pathing object
         self.effects.append(effect)
+        self.floating = False
 
     def draw(self):
         if self.quit:

@@ -133,7 +133,7 @@ class tracker:
                 index = np.array([index_finger.x * cam_w * 1.25*state.cal_ratio - 120, index_finger.y * cam_h * 1.25*state.cal_ratio - 150], dtype=np.int32)
                 thumb = np.array([thumb_tip.x * cam_w*state.cal_ratio * 1.25 - 120, thumb_tip.y * cam_h*state.cal_ratio * 1.25 - 150], dtype=np.int32)
                 ref_point = np.array([int((ref_point_lm[0].x + ref_point_lm[1].x) * cam_w*state.cal_ratio/(2) * 1.25 - 120),
-                             int((ref_point_lm[0].y + ref_point_lm[1].y) * cam_h*state.cal_ratio/(2) * 1.25 - 150)], dtype=np.int32)
+                             int((ref_point_lm[0].y + ref_point_lm[1].y) * cam_h*state.cal_ratio/2 * 1.25 - 150)], dtype=np.int32)
                 state.pointer = np.array(((2*(index + thumb * 2)/3 - ref_point) + state.pointer * 6) / 7).astype(int)
 
                 if state.dev_mode:
@@ -146,6 +146,7 @@ class tracker:
                         classification = handedness.classification[0]
                         cv2.putText(aoe_man.overlay, f"detection confidence: {str(round(classification.score, 3))}",
                                     (200, 50) ,cv2.FONT_HERSHEY_SIMPLEX, 1, state.Theme.text, 2)
+
 
                 if aoe_man.active:
                     self.grab = self.grabbing(index_finger, thumb_tip)
