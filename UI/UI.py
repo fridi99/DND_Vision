@@ -3,6 +3,7 @@ import cv2
 from Effects.effects import *
 from Logic.Logic import *
 from Effects.effects import aoe_man
+import os
 
 class keymanager:
     once = False
@@ -23,11 +24,11 @@ class keymanager:
         if aoe_man.active:
             key = cv2.waitKey(5) & 0xFF
             aoe_man.once = False
-        elif not self.once:
+        elif not aoe_man.once:
             key = cv2.waitKey(5) & 0xFF  # runs once after being inactivated, to remove whiteout
-            self.once = True
+            aoe_man.once = True
         else:
-            key = cv2.waitKey(1000) & 0xFF  # stops image from refreshing until a button is pressed to save computing resources
+            key = cv2.waitKey(0) & 0xFF  # stops image from refreshing until a button is pressed to save computing resources
         if key == ord("q"):
             # quits program
             if aoe_man.active:
@@ -60,8 +61,8 @@ class keymanager:
             aoe_man.delete_last()
         if key == ord("k"):
             # calibrates battlemap using qr code
-            state.cal_ratio = calibration(self.cap)
-            print(state.cal_ratio)
+            state.fcal = calibration(self.cap)
+            save_config({"app":{"fcal": state.fcal}})
         if key == ord("n"):
             # moves to next battlemap
             if (len(os.listdir("maps")) != 1):

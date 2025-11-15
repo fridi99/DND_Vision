@@ -13,15 +13,13 @@
 
 
 from UI.UI import *
-from Effects.effects import *
-
 from Logic.Logic import *
 from Tracking.Tracking import tracker
-from API.api import app
 import API.api as api
 from Effects.effects import aoe_man
+from app.Appdata import load_config, save_config
 
-
+load_config(state)
 aoe_man.assign_cv2(cv2)
 keyman = keymanager(tracker)
 if state.api_active:

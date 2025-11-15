@@ -26,6 +26,7 @@ class aoe_manager:
     quit = False
     overlay = None
     aoe_position = np.array([500, 500], dtype=np.int32)
+    once = False
 
 
     def __init__(self):
@@ -44,6 +45,7 @@ class aoe_manager:
         self.aoe_start = np.array([0, 0], dtype=np.int32)
         self.floating = False
         self.quit = False
+        self.once = False
 
     def activate_type(self, type):
         """
