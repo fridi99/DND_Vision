@@ -4,6 +4,7 @@ import mediapipe as mp
 from UI.UI import *
 from Effects.effects import *
 from Effects.effects import aoe_man
+import os
 
 
 
@@ -129,10 +130,10 @@ class tracker:
 
 
             if self.initiert and results.multi_hand_landmarks:  # should only run if a complete hand is detected, does not always work however
-                index = np.array([index_finger.x * cam_w * 1.25/state.cal_ratio - 120, index_finger.y * cam_h * 1.25/state.cal_ratio - 150], dtype=np.int32)
-                thumb = np.array([thumb_tip.x * cam_w/state.cal_ratio * 1.25 - 120, thumb_tip.y * cam_h/state.cal_ratio * 1.25 - 150], dtype=np.int32)
-                ref_point = np.array([int((ref_point_lm[0].x + ref_point_lm[1].x) * cam_w/(2*state.cal_ratio) * 1.25 - 120),
-                             int((ref_point_lm[0].y + ref_point_lm[1].y) * cam_h/(2*state.cal_ratio) * 1.25 - 150)], dtype=np.int32)
+                index = np.array([index_finger.x * cam_w * 1.25*state.cal_ratio - 120, index_finger.y * cam_h * 1.25*state.cal_ratio - 150], dtype=np.int32)
+                thumb = np.array([thumb_tip.x * cam_w*state.cal_ratio * 1.25 - 120, thumb_tip.y * cam_h*state.cal_ratio * 1.25 - 150], dtype=np.int32)
+                ref_point = np.array([int((ref_point_lm[0].x + ref_point_lm[1].x) * cam_w*state.cal_ratio/(2) * 1.25 - 120),
+                             int((ref_point_lm[0].y + ref_point_lm[1].y) * cam_h*state.cal_ratio/(2) * 1.25 - 150)], dtype=np.int32)
                 state.pointer = np.array(((2*(index + thumb * 2)/3 - ref_point) + state.pointer * 6) / 7).astype(int)
 
                 if state.dev_mode:

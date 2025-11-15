@@ -30,21 +30,36 @@ class Appdata():
     Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
 
 def load_config(state, path="config.yaml"):
-        with open(path, "r") as f:
-            config = yaml.safe_load(f)
-            state.dev_mode = config["app"]["dev_mode"]
-            state.api_active = config["app"]["api_active"]
-            state.show_stats = config["app"]["show_stats"]
-            state.fcal = config["app"]["fcal"]
-            state.cal_ratio = config["app"]["cal_ratio"]
-            state.Theme.passive = config["Theme"]["passive"]
-            state.Theme.active = config["Theme"]["active"]
-            state.Theme.pointer = config["Theme"]["pointer"]
-            state.Theme.blowout = config["Theme"]["blowout"]
-            state.Theme.pathing = config["Theme"]["pathing"]
-            state.Theme.text = config["Theme"]["text"]
+    """
+    Loads the config file and sets AppData variables.
+    :param state: The AppData instance
+    :param path: optional, the path to the config file, defaults to config.yaml
+    :return: None
+    """
+    with open(path, "r") as f:
+        config = yaml.safe_load(f)
+        state.dev_mode = config["app"]["dev_mode"]
+        state.api_active = config["app"]["api_active"]
+        state.show_stats = config["app"]["show_stats"]
+        state.fcal = config["app"]["fcal"]
+        state.cal_ratio = config["app"]["cal_ratio"]
+        state.Theme.passive = config["Theme"]["passive"]
+        state.Theme.active = config["Theme"]["active"]
+        state.Theme.pointer = config["Theme"]["pointer"]
+        state.Theme.blowout = config["Theme"]["blowout"]
+        state.Theme.pathing = config["Theme"]["pathing"]
+        state.Theme.text = config["Theme"]["text"]
 
 def save_config(dict, path="config.yaml"):
+    """
+    A function to change the config file in code. Only one parameter may be
+    changed at a time. No new parameters may be created or parameter types
+    changed.
+    :param dict: The dict containing the keys and value. It should be of a
+    shape like {"app":{"dev_mode": value}}
+    :param path: optional, the path to the config file, defaults to config.yaml
+    :return: int,1 for success
+    """
     key = next(iter(dict))
     with open(path, "r") as f:
         config = safe_load(f)

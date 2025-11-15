@@ -1,12 +1,12 @@
 from math import sqrt
 import cv2
 from app.Appdata import Appdata as state
+from app.Appdata import load_config, save_config
 import numpy as np
 import screeninfo
 import tkinter as tk
 from tkinter import filedialog
-import os
-
+from numpy.linalg import norm
 
 def pythagorean_distance(x1, y1, x2, y2):
     """
@@ -19,6 +19,16 @@ def pythagorean_distance(x1, y1, x2, y2):
     """
     return sqrt((x1-x2)**2 + (y1-y2)**2)
 
+def check_squareness(points):
+    points = points[0]
+    dists = []
+    for i in range(len(points)):
+        dists.append(norm(points[i]- points[i-1]))
+    max, dif = np.max(dists), np.max(dists) - np.min(dists)
+    if(dif < max * 0.05):
+        return True
+    else:
+        return False
 
 def calibration(cap):
     """
@@ -40,19 +50,24 @@ def calibration(cap):
     count = 0
     while cap.isOpened():
         ret, cal_frame = cap.read()
-        retval, decoded_info, points, straight_qrcode = qcd.detectAndDecodeMulti(cal_frame)
+        retval, points = qcd.detect(cal_frame)
+        if points is not None:
+            check_squareness(points)
+            calcode = cv2.polylines(calcode, np.int32([points]), True, (0, 0, 255), 2)
+            cv2.imshow("calibration", calcode)
+            cv2.moveWindow("calibration", state.scr_w, 0)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             cv2.destroyWindow("calibration")
             ratio = 1
             break
 
         if retval:
-            count += 1
-        if count >= 5:
-            cv2.destroyWindow("calibration")
-            pts = np.int32([points])[0][0]
-            ratio = pythagorean_distance(pts[0][0], pts[0][1], pts[2][0], pts[2][1])/208
-            break
+            if check_squareness(points):
+                cv2.destroyWindow("calibration")
+                pts = np.int32([points])[0][0]
+                ratio = pythagorean_distance(pts[0][0], pts[0][1], pts[2][0], pts[2][1])/5746
+                return ratio
+
     return True
 
 def ask_for_file():
