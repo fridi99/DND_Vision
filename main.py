@@ -18,19 +18,50 @@ from Tracking.Tracking import tracker
 import API.api as api
 from Effects.effects import aoe_man
 from app.Appdata import load_config, save_config
+from app.Appdata import Appdata
 
-
+state = Appdata()   #create state
 load_config(state)
+
 aoe_man.assign_cv2(cv2)
 keyman = keymanager(tracker)
 
 if state.api_active:
+    api.init_api(state)
     api.start_server()
 
+EFFECT_MAP = {
+    "fire": "f",
+    "ice": "i",
+    "blood": "b",
+}
+
+last_effect = None
+
 while tracker.cap.isOpened():
+
+    # frontend + handtracking
+    if state.current_effect != last_effect:
+
+        if state.current_effect is None:
+            aoe_man.clear()
+            state.armed = False
+
+        else:
+            effect_code = EFFECT_MAP.get(state.current_effect)
+            if effect_code is not None:
+                aoe_man.activate_type(effect_code)
+                state.armed = True
+            else:
+                print("[WARN] Unknown effect:", state.current_effect)
+
+        last_effect = state.current_effect
+
+    # existing logic
     keyman.process_keypress()
     aoe_man.overlay = tracker.battle_map.copy()
     tracker.track()
+
 
 tracker.cap.release()
 cv2.destroyAllWindows()

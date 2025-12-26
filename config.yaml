@@ -23,7 +23,7 @@ Theme:
   - 200
   - 200
 app:
-  api_active: false
+  api_active: true
   cal_ratio: 1
   dev_mode: false
   fcal: 0.08072931981059034

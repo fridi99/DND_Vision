@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import numpy as np
 import yaml
 from yaml import safe_load
+from typing import Optional
 
 
 class Theme():
@@ -14,20 +15,25 @@ class Theme():
     pathing = (100, 0, 100)
     text = (200,200,200)
 
+
 @dataclass
 class Appdata():
 
     # flags:
-    dev_mode: bool = False # shows additional information, like hand landmarks
-    api_active: bool = False # if the api should be launched or not
-    show_stats: bool = False # adds stats like detection confidence
+    dev_mode: bool = False  # shows additional information, like hand landmarks
+    api_active: bool = False  # if the api should be launched or not
+    show_stats: bool = False  # adds stats like detection confidence
+    armed: bool = False     #effect is chosen but not yet placed
 
+    # current visual effect (controlled by frontend / API)
+    current_effect: Optional[str] = None
 
     # variable initialization
-    fcal: float = 0.0795 # factor to scale image to size of table top projection
-    pointer = np.array([500, 500]) # initial position of pointer
-    cal_ratio: float = 1 # initial ratio for calibration. changed by using calibration function
-    Theme: 'Theme' = Theme() # The Theme object is needed as reference for colors
+    fcal: float = 0.0795  # factor to scale image to size of table top projection
+    pointer = np.array([500, 500])  # initial position of pointer
+    cal_ratio: float = 1  # initial ratio for calibration. changed by using calibration function
+    Theme: 'Theme' = Theme()  # The Theme object is needed as reference for colors
+
 
 def load_config(state, path="config.yaml"):
     """
@@ -49,6 +55,7 @@ def load_config(state, path="config.yaml"):
         state.Theme.blowout = config["Theme"]["blowout"]
         state.Theme.pathing = config["Theme"]["pathing"]
         state.Theme.text = config["Theme"]["text"]
+
 
 def save_config(dict, path="config.yaml"):
     """
